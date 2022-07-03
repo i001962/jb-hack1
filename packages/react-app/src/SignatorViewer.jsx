@@ -81,6 +81,7 @@ const checkEip1271 = async (provider, address, message, signature) => {
 function SignatorViewer({ injectedProvider, mainnetProvider, address, loadWeb3Modal, chainList }) {
   function useSearchParams() {
     const _params = new URLSearchParams(useLocation().search);
+    //console.log('from signatorviewr ',_params);
     return _params;
   }
 

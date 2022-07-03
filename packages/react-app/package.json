@@ -43,6 +43,7 @@
     "ethers": "5.1.4",
     "graphiql": "^1.0.5",
     "graphql": "^15.3.0",
+    "gun": "^0.2020.1237",
     "isomorphic-fetch": "^3.0.0",
     "json-url": "^3.0.0",
     "node-watch": "^0.7.1",

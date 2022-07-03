@@ -4,7 +4,24 @@ import React, { useEffect, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { useLocalStorage } from "./hooks";
 import { AddressInput } from "./components";
+import Gun from "gun";
+import "gun/lib/open";
+import "gun/sea";
+//import "gun/lib/mobile.js" // most important!
+//import GUN from 'gun/gun'
+//import SEA from 'gun/sea'
+import 'gun/lib/radix2.js'
+import 'gun/lib/radisk.js'
+import 'gun/lib/store.js'
+import 'gun/lib/rindexed.js'
+//import AsyncStorage from "@react-native-community/async-storage"
+//import asyncStore from 'gun/lib/ras.js'
 
+// Warning: Android AsyncStorage has 6mb limit by default!
+//Gun({ store: asyncStore({ AsyncStorage }) })
+var gun = Gun();
+//gun = Gun(['http://localhost:8765/gun', 'https://gun-manhattan.herokuapp.com/gun']);
+gun = Gun({peers:['https://gun-manhattan.herokuapp.com/gun','https://gun-us.herokuapp.com/gun'],radisk:true,  localStorage: false});
 const { Text } = Typography;
 const { Panel } = Collapse;
 const { Option } = Select;
@@ -39,6 +56,7 @@ const eip712Example = {
 };
 
 function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnetProvider }) {
+  
   const [messageText, setMessageText] = useLocalStorage("messageText", "hello ethereum");
   // const [metaData, setMetaData] = useState("none");
   // const [messageDate, setMessageDate] = useState(new Date());
@@ -152,7 +170,11 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
       }
 
       history.push(`/view?${searchParams.toString()}`);
-
+      const randomId = `id_${Date.now()}`;
+      const toAddress = '0x' + 'your-JB-Project-address'.toLowerCase();
+      console.log(toAddress);
+      gun.get("jbtest").get(toAddress).put({ fromAddress: address, signature: _signature, message: messageText, id: randomId }).once(function(x){console.log(x)});
+     
       setSigning(false);
     } catch (e) {
       console.log(e);
