@@ -58,7 +58,7 @@ const eip712Example = {
 };
 
 function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnetProvider }) {
-  
+  const [allMessages, setAllMessages] = useLocalStorage({});
   const [messageText, setMessageText] = useLocalStorage("messageText", "hello ethereum");
   // const [metaData, setMetaData] = useState("none");
   // const [messageDate, setMessageDate] = useState(new Date());
@@ -162,7 +162,7 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
       }
       console.log('Put this into gun?? ', `/view?${searchParams.toString()}`);
       history.push(`/view?${searchParams.toString()}`);
-      const randomId = `id_${Date.now()}`;
+      const when = `${Date.now()}`;
       // TODO - insert jbx project or project id here
       const toAddress = '0x' + 'your-JB-Project-address'.toLowerCase();
       console.log(toAddress);
@@ -176,9 +176,13 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
         let hash = await SEA.work(soul, null, null,{name:'SHA-256'})
         gun.get('#messages').get(hash).put(soul)  // User puts a hashed soul of the message in a public content-addressed node
       }) */
-      gun.get("jbtest").get(toAddress).put({ fromAddress: address, signature: _signature, message: messageText, id: randomId, evidence: `/view?${searchParams.toString()}`}).once(function(x){console.log(x)});
-     
+      gun.get("jbtest1").get(when).put({ fromAddress: address, signature: _signature, message: messageText, when: when, evidence: `/view?${searchParams.toString()}`}).once(function(x){console.log(x)});
       setSigning(false);
+      gun.get('jbtest1').map().once(function(x){console.log(x);
+        let last = x.when;
+        console.log(last);
+        setAllMessages(x);
+      });
     } catch (e) {
       console.log(e);
       setSigning(false);
