@@ -422,7 +422,7 @@ function SignatorViewer({ injectedProvider, mainnetProvider, address, loadWeb3Mo
               history.push(`/`);
             }}
           >
-            ✍️ &nbsp; Create new signator.io
+            ✍️ &nbsp; Send a new message
           </Button>
         </div>
       </div>
