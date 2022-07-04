@@ -7,18 +7,11 @@ import { AddressInput } from "./components";
 import Gun from "gun";
 import "gun/lib/open";
 import "gun/sea";
-//import "gun/lib/mobile.js" // most important!
-//import GUN from 'gun/gun'
-//import SEA from 'gun/sea'
 import 'gun/lib/radix2.js'
 import 'gun/lib/radisk.js'
 import 'gun/lib/store.js'
 import 'gun/lib/rindexed.js'
-//import AsyncStorage from "@react-native-community/async-storage"
-//import asyncStore from 'gun/lib/ras.js'
 
-// Warning: Android AsyncStorage has 6mb limit by default!
-//Gun({ store: asyncStore({ AsyncStorage }) })
 var gun = Gun();
 var SEA = Gun.SEA;
 // Peers to 'pin' to initially
@@ -58,7 +51,9 @@ const eip712Example = {
 };
 
 function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnetProvider }) {
-  const [allMessages, setAllMessages] = useLocalStorage({});
+  const [allMessages, setAllMessages] = useState([]);
+  console.log('is this updataing ', allMessages[0]);
+  let testArray = allMessages;
   const [messageText, setMessageText] = useLocalStorage("messageText", "hello ethereum");
   // const [metaData, setMetaData] = useState("none");
   // const [messageDate, setMessageDate] = useState(new Date());
@@ -161,27 +156,21 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
         searchParams.set("addresses", manualAddress);
       }
       console.log('Put this into gun?? ', `/view?${searchParams.toString()}`);
-      history.push(`/view?${searchParams.toString()}`);
+      //history.push(`/view?${searchParams.toString()}`);
       const when = `${Date.now()}`;
       // TODO - insert jbx project or project id here
       const toAddress = '0x' + 'your-JB-Project-address'.toLowerCase();
       console.log(toAddress);
         
-      var pair = await SEA.pair();
-      console.log('This is a holder for the gun-user ', pair);
-      //gun.user(pair)
-/*       gun.user().get('jbtest').set({ fromAddress: address, signature: _signature, message: messageText, id: randomId, evidence: `/view?${searchParams.toString()}`}).on(async data => {
-        let soul = Gun.node.soul(data)
-        //let soul = data._["#"];
-        let hash = await SEA.work(soul, null, null,{name:'SHA-256'})
-        gun.get('#messages').get(hash).put(soul)  // User puts a hashed soul of the message in a public content-addressed node
-      }) */
-      gun.get("jbtest1").get(when).put({ fromAddress: address, signature: _signature, message: messageText, when: when, evidence: `/view?${searchParams.toString()}`}).once(function(x){console.log(x)});
+      //var pair = await SEA.pair();
+      //console.log('This is a holder for the gun-user ', pair);
+
+      gun.get("jbtest2").get(when).put({ fromAddress: address, signature: _signature, message: messageText, when: when, evidence: `/view?${searchParams.toString()}`}).once(function(x){console.log(x)});
       setSigning(false);
-      gun.get('jbtest1').map().once(function(x){console.log(x);
-        let last = x.when;
-        console.log(last);
-        setAllMessages(x);
+      gun.get('jbtest2').map().once(function(x){
+        //let last = x.when;
+        console.log('from gun get map x, ',x);
+        setAllMessages([x]);
       });
     } catch (e) {
       console.log(e);
@@ -197,10 +186,26 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
     }
   };
 
-  console.log(manualAddress, manualSignature);
+  //console.log(manualAddress, manualSignature);
 
   return (
     <div className="container">
+              <ul>
+          {testArray.map((x) => (
+            <li key={x.when}>
+              {x.when}
+            </li>
+          ))}
+        </ul>
+          <ul>
+
+  {testArray.length > 0 &&
+
+testArray.map((item, i) => <li>{item.when} </li>)}
+
+  </ul>
+
+
       <Card>
         {type === "message" && (
           <Input.TextArea
