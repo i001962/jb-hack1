@@ -4,8 +4,6 @@ import Gun from "gun";
 
 const gun = Gun();
 
-gun.get("chat").set("")
-
 const get =  key => {
      return new Promise((resolve, reject) => {
         gun.get(key).on(data => resolve(data));
@@ -19,7 +17,7 @@ const lastOf = async key => {
 // push to array last element on change of other  var.
 export default function Chat() {
     
-    const [msg, setMsg] = useState([]);
+    const [msg, setMsg] = useState(["Welcome to this amazing discussion...", "Please feel free to enjoy ;)"]);
     const [write, setWritten] = useState("");
 
     useEffect(() => {
