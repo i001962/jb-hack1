@@ -14,6 +14,8 @@ import signatorLogo from "./images/sig-logo.png";
 import Signator from "./Signator";
 import SignatorViewer from "./SignatorViewer";
 
+import {Chat} from "./views/index";
+
 const { Footer } = Layout;
 /*
     Welcome to Signatorio !
@@ -177,6 +179,9 @@ function App() {
               loadWeb3Modal={loadWeb3Modal}
               chainList={chainList}
             />
+          </Route>
+          <Route exact path="/chat">
+            <Chat></Chat>
           </Route>
         </Switch>
       </BrowserRouter>
