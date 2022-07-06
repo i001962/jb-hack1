@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, memo } from "react";
-import { Card } from "antd";
+import { Card, Input, Button } from "antd";
 import Gun from "gun";
 
 const gun = Gun();
@@ -33,11 +33,11 @@ export default function Chat() {
                 <li>{data}</li>
             )}
 
-            <input placeholder="Type here..." type="text" value={write} onInput={(e) => setWritten(e.target.value)}/>
-            <button onClick={() => { 
+            <Input placeholder="Type here..." type="text" value={write} onInput={(e) => setWritten(e.target.value)}/>
+            <Button onClick={() => { 
                 console.log(write)
                 gun.get("chat").set(write);
-            }}>Send</button>
+            }}>Send</Button>
         </Card>
     </div>
 }
