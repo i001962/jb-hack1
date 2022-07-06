@@ -46,6 +46,7 @@
     "gun": "^0.2020.1237",
     "isomorphic-fetch": "^3.0.0",
     "json-url": "^3.0.0",
+    "juice-sdk": "^2.0.1-alpha",
     "node-watch": "^0.7.1",
     "postcss": "^8.2.6",
     "qrcode.react": "^1.0.0",

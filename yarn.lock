@@ -12865,6 +12865,11 @@ jsx-ast-utils@^2.2.1, jsx-ast-utils@^2.2.3:
     array-includes "^3.1.2"
     object.assign "^4.1.2"
 
+juice-sdk@^2.0.1-alpha:
+  version "2.0.1-alpha"
+  resolved "https://registry.yarnpkg.com/juice-sdk/-/juice-sdk-2.0.1-alpha.tgz#be22035973f2b72da3b80a981e84e420380ca003"
+  integrity sha512-0SY8YHoay/CGZLuMo7q4lrzfn3f6GZR9BiDfua5ato4D2gAnP814q0VvfPQkmVOMgQTqJ2gUo7Uualp+gyG+ng==
+
 just-debounce@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/just-debounce/-/just-debounce-1.1.0.tgz#2f81a3ad4121a76bc7cb45dbf704c0d76a8e5ddf"

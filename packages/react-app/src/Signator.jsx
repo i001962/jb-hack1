@@ -11,11 +11,13 @@ import 'gun/lib/radix2.js'
 import 'gun/lib/radisk.js'
 import 'gun/lib/store.js'
 import 'gun/lib/rindexed.js'
+import { getJBDirectory } from "juice-sdk";
 
 var gun = Gun();
 var SEA = Gun.SEA;
 // Peers to 'pin' to initially
 gun = Gun({peers:['https://gun-manhattan.herokuapp.com/gun','https://gun-us.herokuapp.com/gun'],radisk:true,  localStorage: false});
+const PROJECT_ID = 1;
 
 const { Text } = Typography;
 const { Panel } = Collapse;
@@ -26,51 +28,22 @@ const codec = require("json-url")("lzw");
     Welcome to the Signator!
 */
 
-const eip712Example = {
-  types: {
-    Greeting: [
-      {
-        name: "salutation",
-        type: "string",
-      },
-      {
-        name: "target",
-        type: "string",
-      },
-      {
-        name: "born",
-        type: "int32",
-      },
-    ],
-  },
-  message: {
-    salutation: "Hello",
-    target: "Ethereum",
-    born: 2015,
-  },
-};
 
 function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnetProvider }) {
+  // jb
+
+  // something will get looked up here
+
+  //jb
+  
   const [allMessages, setAllMessages] = useState([]);
   console.log('is this updataing ', allMessages[0]);
   let testArray = allMessages;
   const [messageText, setMessageText] = useLocalStorage("messageText", "hello ethereum");
-  // const [metaData, setMetaData] = useState("none");
-  // const [messageDate, setMessageDate] = useState(new Date());
   const [hashMessage, setHashMessage] = useState(false);
-  // const [latestBlock, setLatestBlock] = useState();
   const [signing, setSigning] = useState(false);
-  const [typedData, setTypedData] = useLocalStorage("typedData", eip712Example);
-  const [manualTypedData, setManualTypedData] = useLocalStorage(
-    "manualTypedData",
-    JSON.stringify(eip712Example, null, "\t"),
-  );
-  const [invalidJson, setInvalidJson] = useState(false);
   const [type, setType] = useLocalStorage("signingType", "message");
-  const [typedDataChecks, setTypedDataChecks] = useState({});
-  const [chainId, setChainId] = useState(
-    typedData && typedData.domain && typedData.domain.chainId ? parseInt(typedData.domain.chainId, 10) : 1,
-  );
+  const [chainId, setChainId] = useState(1,);
   const [action, setAction] = useState("send");
   const [manualSignature, setManualSignature] = useState();
   const [manualAddress, setManualAddress] = useState();
@@ -111,23 +84,21 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
   */
 
   useEffect(() => {
-    if (typedData) {
-      const _checks = {};
-      _checks.domain = "domain" in typedData;
-      _checks.types = "types" in typedData;
-      _checks.message = "message" in typedData;
-      let _hash;
-      try {
-        _hash = ethers.utils._TypedDataEncoder.hash(typedData.domain, typedData.types, typedData.message);
-        _checks.hash = _hash;
-      } catch (e) {
-        console.log("failed to compute hash", e);
-      }
-      setTypedDataChecks(_checks);
-    }
-  }, [typedData]);
+    
+  }, []);
 
   const signMessage = async () => {
+    
+    //jb just testing juice-sdk here need to be smarter with the scopes
+    console.log('injectedProvider ', injectedProvider);
+    //const JBDirectory = getJBDirectory(injectedProvider);
+    //just testing
+    const JBDirectory = getJBDirectory("https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161");
+
+    const terminals = await JBDirectory.terminalsOf(PROJECT_ID);
+    console.log(terminals);
+    // jb
+
     try {
       setSigning(true);
 
@@ -156,18 +127,15 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
         searchParams.set("addresses", manualAddress);
       }
       console.log('Put this into gun?? ', `/view?${searchParams.toString()}`);
+      // Comment out to prevent route change
       //history.push(`/view?${searchParams.toString()}`);
       const when = `${Date.now()}`;
       // TODO - insert jbx project or project id here
       const toAddress = '0x' + 'your-JB-Project-address'.toLowerCase();
       console.log(toAddress);
-        
-      //var pair = await SEA.pair();
-      //console.log('This is a holder for the gun-user ', pair);
-
       gun.get("jbtest2").get(when).put({ fromAddress: address, signature: _signature, message: messageText, when: when, evidence: `/view?${searchParams.toString()}`}).once(function(x){console.log(x)});
       setSigning(false);
-      gun.get('jbtest2').map().once(function(x){
+      gun.get('jbtest2').map().on(function(x){
         //let last = x.when;
         console.log('from gun get map x, ',x);
         setAllMessages([x]);
@@ -186,22 +154,23 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
     }
   };
 
-  //console.log(manualAddress, manualSignature);
-
   return (
     <div className="container">
-              <ul>
+      <p>
+          Project {PROJECT_ID} Juicebox balance: {} ETH
+        </p>
+             {/*  <ul>
           {testArray.map((x) => (
             <li key={x.when}>
               {x.when}
             </li>
           ))}
-        </ul>
+        </ul> */}
           <ul>
 
   {testArray.length > 0 &&
 
-testArray.map((item, i) => <li>{item.when} </li>)}
+    testArray.map((item, i) => <li>hi {item.when} {item.message} </li>)}
 
   </ul>
 
@@ -224,10 +193,6 @@ testArray.map((item, i) => <li>{item.when} </li>)}
             size="large"
             type="primary"
             onClick={action !== "send" ? signMessage : injectedProvider ? signMessage : loadWeb3Modal}
-            disabled={
-              (type === "typedData" && (!typedDataChecks.hash || invalidJson)) ||
-              (action === "verify" && (!ethers.utils.isAddress(manualAddress) || !manualSignature))
-            }
             loading={signing}
             style={{ marginTop: 10 }}
           >
@@ -260,8 +225,6 @@ testArray.map((item, i) => <li>{item.when} </li>)}
                   setType(e.target.value);
                 }}
               >
-                {/* <Radio.Button value="message">Message</Radio.Button>
-                <Radio.Button value="typedData">Typed Data</Radio.Button> */}
               </Radio.Group>
 
               {type === "message" && (
