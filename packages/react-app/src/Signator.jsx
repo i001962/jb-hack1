@@ -7,21 +7,19 @@ import { AddressInput } from "./components";
 import Gun from "gun";
 import "gun/lib/open";
 import "gun/sea";
-//import "gun/lib/mobile.js" // most important!
-//import GUN from 'gun/gun'
-//import SEA from 'gun/sea'
-import 'gun/lib/radix2.js'
+import 'gun/lib/radix.js'
 import 'gun/lib/radisk.js'
 import 'gun/lib/store.js'
 import 'gun/lib/rindexed.js'
-//import AsyncStorage from "@react-native-community/async-storage"
-//import asyncStore from 'gun/lib/ras.js'
+import useJuiceboxBalance from "./hooks/useJuiceboxBalance";
+import { formatEther } from "ethers/lib/utils";
 
-// Warning: Android AsyncStorage has 6mb limit by default!
-//Gun({ store: asyncStore({ AsyncStorage }) })
+
 var gun = Gun();
-//gun = Gun(['http://localhost:8765/gun', 'https://gun-manhattan.herokuapp.com/gun']);
+var SEA = Gun.SEA;
+// Peers to 'pin' to initially
 gun = Gun({peers:['https://gun-manhattan.herokuapp.com/gun','https://gun-us.herokuapp.com/gun'],radisk:true,  localStorage: false});
+
 const { Text } = Typography;
 const { Panel } = Collapse;
 const { Option } = Select;
@@ -31,50 +29,29 @@ const codec = require("json-url")("lzw");
     Welcome to the Signator!
 */
 
-const eip712Example = {
-  types: {
-    Greeting: [
-      {
-        name: "salutation",
-        type: "string",
-      },
-      {
-        name: "target",
-        type: "string",
-      },
-      {
-        name: "born",
-        type: "int32",
-      },
-    ],
-  },
-  message: {
-    salutation: "Hello",
-    target: "Ethereum",
-    born: 2015,
-  },
-};
 
 function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnetProvider }) {
+  // jb
+
+  // something will get looked up here
+  const PROJECT_ID = 1;
+  const { data: balance } = useJuiceboxBalance({ projectId: PROJECT_ID});
+  console.log("Balance here", balance);
+  const balanceETH = balance
+  ? parseFloat(formatEther(balance)).toFixed(4)
+  : "...";
+  console.log('balanceETH', balanceETH);
+  //jb
   
+  const [allMessages, setAllMessages] = useState([]);
+  console.log('is this updataing ', allMessages[0]);
+  let testArray = allMessages;
   const [messageText, setMessageText] = useLocalStorage("messageText", "hello ethereum");
-  // const [metaData, setMetaData] = useState("none");
-  // const [messageDate, setMessageDate] = useState(new Date());
   const [hashMessage, setHashMessage] = useState(false);
-  // const [latestBlock, setLatestBlock] = useState();
   const [signing, setSigning] = useState(false);
-  const [typedData, setTypedData] = useLocalStorage("typedData", eip712Example);
-  const [manualTypedData, setManualTypedData] = useLocalStorage(
-    "manualTypedData",
-    JSON.stringify(eip712Example, null, "\t"),
-  );
-  const [invalidJson, setInvalidJson] = useState(false);
   const [type, setType] = useLocalStorage("signingType", "message");
-  const [typedDataChecks, setTypedDataChecks] = useState({});
-  const [chainId, setChainId] = useState(
-    typedData && typedData.domain && typedData.domain.chainId ? parseInt(typedData.domain.chainId, 10) : 1,
-  );
-  const [action, setAction] = useState("sign");
+  const [chainId, setChainId] = useState(1,);
+  const [action, setAction] = useState("send");
   const [manualSignature, setManualSignature] = useState();
   const [manualAddress, setManualAddress] = useState();
 
@@ -114,68 +91,65 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
   */
 
   useEffect(() => {
-    if (typedData) {
-      const _checks = {};
-      _checks.domain = "domain" in typedData;
-      _checks.types = "types" in typedData;
-      _checks.message = "message" in typedData;
-      let _hash;
-      try {
-        _hash = ethers.utils._TypedDataEncoder.hash(typedData.domain, typedData.types, typedData.message);
-        _checks.hash = _hash;
-      } catch (e) {
-        console.log("failed to compute hash", e);
-      }
-      setTypedDataChecks(_checks);
-    }
-  }, [typedData]);
+    
+  }, []);
 
   const signMessage = async () => {
+    
+    //jb just testing juice-sdk here need to be smarter with the scopes
+    console.log('injectedProvider ', injectedProvider);
+    //const JBDirectory = getJBDirectory(injectedProvider);
+    //just testing
+    //const JBDirectory = getJBDirectory("https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161");
+    //const RPC_HOST = "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161";
+    //const provider1 = new JsonRpcProvider(RPC_HOST);
+    //const JBDirectory =  getJBDirectory(provider1);
+    //const terminals = await JBDirectory.terminalsOf(PROJECT_ID);
+ 
+    //console.log('this is a terminal ',terminals);
+    // jb
+
     try {
       setSigning(true);
 
-      const injectedSigner = action === "sign" && injectedProvider.getSigner();
+      const injectedSigner = action === "send" && injectedProvider.getSigner();
 
       let _signature;
-      if (type === "typedData") {
-        const _typedData = { ...typedData };
-        if (!_typedData.domain && action !== "verify") _typedData.domain = {};
-        if (!_typedData.domain.chainId && action !== "verify") _typedData.domain.chainId = chainId;
-        console.log(`${action}: ${_typedData}`);
 
-        if (action === "sign")
-          _signature = await injectedSigner._signTypedData(_typedData.domain, _typedData.types, _typedData.message);
-        const _compressedData = await codec.compress(_typedData);
-
-        searchParams.set("typedData", _compressedData);
-      } else if (type === "message") {
+      if (type === "message") {
         // const _messageToSign = ethers.utils.isBytesLike(_message) ? ethers.utils.arrayify(_message) : _message;
         const _message = getMessage();
         console.log(`${action}: ${_message}`);
-        if (action === "sign") _signature = await injectedProvider.send("personal_sign", [_message, address]);
+        if (action === "send") _signature = await injectedProvider.send("personal_sign", [_message, address]);
         // _signature = await injectedSigner.signMessage(_messageToSign);
 
         searchParams.set("message", _message);
       }
       // console.log(_signature)
 
-      if (action === "sign") console.log(`Success! ${_signature}`);
+      if (action === "send") console.log(`Success! ${_signature}`);
 
-      if (action === "sign") {
+      if (action === "send") {
         searchParams.set("signatures", _signature);
         searchParams.set("addresses", address);
       } else if (action === "verify") {
         searchParams.set("signatures", manualSignature);
         searchParams.set("addresses", manualAddress);
       }
-
-      history.push(`/view?${searchParams.toString()}`);
-      const randomId = `id_${Date.now()}`;
+      console.log('Put this into gun?? ', `/view?${searchParams.toString()}`);
+      // Comment out to prevent route change
+      //history.push(`/view?${searchParams.toString()}`);
+      const when = `${Date.now()}`;
+      // TODO - insert jbx project or project id here
       const toAddress = '0x' + 'your-JB-Project-address'.toLowerCase();
       console.log(toAddress);
-      gun.get("jbtest").get(toAddress).put({ fromAddress: address, signature: _signature, message: messageText, id: randomId }).once(function(x){console.log(x)});
-     
+      gun.get("jbtest2").get(when).put({ fromAddress: address, signature: _signature, message: messageText, when: when, evidence: `/view?${searchParams.toString()}`}).once(function(x){console.log(x)});
       setSigning(false);
+      gun.get('jbtest2').map().on(function(x){
+        //let last = x.when;
+        console.log('from gun get map x, ',x);
+        setAllMessages([x]);
+      });
     } catch (e) {
       console.log(e);
       setSigning(false);
@@ -190,10 +164,27 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
     }
   };
 
-  console.log(manualAddress, manualSignature);
-
   return (
     <div className="container">
+      <p>
+          Project {PROJECT_ID} Juicebox balance: {} ETH
+        </p>
+             {/*  <ul>
+          {testArray.map((x) => (
+            <li key={x.when}>
+              {x.when}
+            </li>
+          ))}
+        </ul> */}
+          <ul>
+
+  {testArray.length > 0 &&
+
+    testArray.map((item, i) => <li>hi {item.when} {item.message} </li>)}
+
+  </ul>
+
+
       <Card>
         {type === "message" && (
           <Input.TextArea
@@ -207,40 +198,34 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
           />
         )}
 
-        {type === "typedData" && (
-          <>
-            <Space direction="vertical" style={{ width: "100%" }}>
-              <Input.TextArea
-                size="large"
-                autoSize={{ minRows: 2 }}
-                value={manualTypedData}
-                onChange={e => {
-                  try {
-                    setManualTypedData(e.target.value);
-                    const _newTypedData = JSON.parse(e.target.value);
-                    setTypedData(_newTypedData);
-                    setInvalidJson(false);
-                    if (_newTypedData.domain && _newTypedData.domain.chainId) {
-                      setChainId(parseInt(_newTypedData.domain.chainId, 10));
-                    }
-                  } catch (error) {
-                    console.log(error);
-                    setInvalidJson(true);
-                    setTypedDataChecks({});
-                  }
-                }}
-              />
-              {invalidJson && <Alert message="Invalid Json" type="error" />}
-              {/* typedDataChecks.domain===false&&<Alert message="No domain specified" type="info" /> */}
-              {typedDataChecks.types === false && <Alert message="Missing types" type="error" />}
-              {typedDataChecks.message === false && <Alert message="Missing message" type="error" />}
-              {!invalidJson && !typedDataChecks.hash && <Alert message="Invalid EIP-712 input data" type="error" />}
-            </Space>
-          </>
-        )}
+        <Space>
+          <Button
+            size="large"
+            type="primary"
+            onClick={action !== "send" ? signMessage : injectedProvider ? signMessage : loadWeb3Modal}
+            loading={signing}
+            style={{ marginTop: 10 }}
+          >
+            {action !== "send" ? action : injectedProvider ? action : "Connect account to send"}
+          </Button>
 
+          {signing && (
+            <Button
+              size="large"
+              onClick={() => {
+                setSigning(false);
+              }}
+              style={{ marginTop: 10 }}
+            >
+              Cancel
+            </Button>
+          )}
+        </Space>
         <Collapse ghost>
           <Panel header="Advanced" key="1">
+          <Space direction="vertical" style={{ width: "100%" }}>
+          <p>Hi mom</p>
+          </Space>
             <Space direction="vertical" style={{ width: "100%" }}>
               <Radio.Group
                 value={type}
@@ -250,108 +235,11 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
                   setType(e.target.value);
                 }}
               >
-                <Radio.Button value="message">Message</Radio.Button>
-                <Radio.Button value="typedData">Typed Data</Radio.Button>
               </Radio.Group>
 
               {type === "message" && (
                 <>
-                  <div>
-                    <Space>
-                      {/* <Radio.Group
-                          value={metaData}
-                          buttonStyle="solid"
-                          size="large"
-                          onChange={e => {
-                            setMetaData(e.target.value);
-                          }}
-                        >
-                          <Radio.Button value="time">Time</Radio.Button>
-                          <Radio.Button value="block" disabled={!latestBlock}>Block</Radio.Button>
-                          <Radio.Button value="none">None</Radio.Button>
-                        </Radio.Group> */}
 
-                      <Button
-                        size="large"
-                        onClick={() => {
-                          const _date = new Date();
-                          setMessageText(`${_date.toLocaleString()}: ${messageText}`);
-                        }}
-                      >
-                        Add time
-                      </Button>
-                      <Checkbox
-                        style={{ fontSize: 18 }}
-                        checked={hashMessage}
-                        onChange={e => {
-                          setHashMessage(e.target.checked);
-                        }}
-                      >
-                        Hash message
-                      </Checkbox>
-                    </Space>
-                  </div>
-
-                  {hashMessage && (
-                    <Card className="card-border">
-                      <div
-                        style={{
-                          fontSize: 14,
-                          wordWrap: "break-word",
-                          whiteSpace: "pre-line",
-                        }}
-                      >
-                        <Text style={{ marginBottom: "0px" }}>{`${getMessage()}`}</Text>
-                      </div>
-                    </Card>
-                  )}
-                </>
-              )}
-
-              {type === "typedData" && (
-                <>
-                  <a href="https://eips.ethereum.org/EIPS/eip-712" target="_blank" rel="noopener noreferrer">
-                    Learn more about signing typed data
-                  </a>
-                  <Space>
-                    <Button
-                      size="large"
-                      onClick={() => {
-                        setManualTypedData(JSON.stringify(typedData, null, "\t"));
-                      }}
-                      disabled={invalidJson}
-                    >
-                      {" "}
-                      Prettify
-                    </Button>
-                    <Button
-                      size="large"
-                      onClick={() => {
-                        setManualTypedData(JSON.stringify(eip712Example, null, "\t"));
-                        setTypedData(eip712Example);
-                        setInvalidJson(false);
-                      }}
-                    >
-                      {" "}
-                      Reset
-                    </Button>
-                  </Space>
-                  <Select
-                    showSearch
-                    value={chainId}
-                    size="large"
-                    disabled={typedData && typedData.domain && typedData.domain.chainId}
-                    onChange={value => {
-                      console.log(`selected ${value}`);
-                      setChainId(value);
-                    }}
-                    filterOption={(input, option) => option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                    optionFilterProp="children"
-                  >
-                    {chainList.map(chain => (
-                      <Option key={chain.chainId} value={chain.chainId}>{`${chain.name} (${chain.chainId})`}</Option>
-                    ))}
-                  </Select>
                 </>
               )}
 
@@ -362,8 +250,8 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
                 }}
                 style={{ marginTop: 10 }}
               >
-                <Radio value="sign">Sign</Radio>
-                <Radio value="create">Create</Radio>
+                <Radio value="send">Send</Radio>
+                {/* <Radio value="create">Create</Radio> */}
                 <Radio value="verify">Verify</Radio>
               </Radio.Group>
               {action === "verify" && (
@@ -383,34 +271,6 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
             </Space>
           </Panel>
         </Collapse>
-
-        <Space>
-          <Button
-            size="large"
-            type="primary"
-            onClick={action !== "sign" ? signMessage : injectedProvider ? signMessage : loadWeb3Modal}
-            disabled={
-              (type === "typedData" && (!typedDataChecks.hash || invalidJson)) ||
-              (action === "verify" && (!ethers.utils.isAddress(manualAddress) || !manualSignature))
-            }
-            loading={signing}
-            style={{ marginTop: 10 }}
-          >
-            {action !== "sign" ? action : injectedProvider ? action : "Connect account to sign"}
-          </Button>
-
-          {signing && (
-            <Button
-              size="large"
-              onClick={() => {
-                setSigning(false);
-              }}
-              style={{ marginTop: 10 }}
-            >
-              Cancel
-            </Button>
-          )}
-        </Space>
       </Card>
     </div>
   );
