@@ -11,13 +11,14 @@ import 'gun/lib/radix2.js'
 import 'gun/lib/radisk.js'
 import 'gun/lib/store.js'
 import 'gun/lib/rindexed.js'
-import { getJBDirectory } from "juice-sdk";
+//import { getJBDirectory } from "juice-sdk";
+//import { JsonRpcProvider } from "@ethersproject/providers";
+import useJuiceboxBalance from "./hooks/useJuiceboxBalance";
 
 var gun = Gun();
 var SEA = Gun.SEA;
 // Peers to 'pin' to initially
 gun = Gun({peers:['https://gun-manhattan.herokuapp.com/gun','https://gun-us.herokuapp.com/gun'],radisk:true,  localStorage: false});
-const PROJECT_ID = 1;
 
 const { Text } = Typography;
 const { Panel } = Collapse;
@@ -33,7 +34,10 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
   // jb
 
   // something will get looked up here
-
+  const PROJECT_ID = 1;
+  const { data: balance } = useJuiceboxBalance({ projectId: PROJECT_ID });
+  console.log("Balance here", balance);
+  
   //jb
   
   const [allMessages, setAllMessages] = useState([]);
@@ -93,10 +97,13 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
     console.log('injectedProvider ', injectedProvider);
     //const JBDirectory = getJBDirectory(injectedProvider);
     //just testing
-    const JBDirectory = getJBDirectory("https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161");
-
-    const terminals = await JBDirectory.terminalsOf(PROJECT_ID);
-    console.log(terminals);
+    //const JBDirectory = getJBDirectory("https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161");
+    //const RPC_HOST = "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161";
+    //const provider1 = new JsonRpcProvider(RPC_HOST);
+    //const JBDirectory =  getJBDirectory(provider1);
+    //const terminals = await JBDirectory.terminalsOf(PROJECT_ID);
+ 
+    //console.log('this is a terminal ',terminals);
     // jb
 
     try {
