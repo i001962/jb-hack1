@@ -17,7 +17,7 @@ const lastOf = async key => {
 // push to array last element on change of other  var.
 export default function Chat() {
     
-    const [msg, setMsg] = useState(["Welcome to this amazing discussion...", "Please feel free to enjoy ;)"]);
+    const [msg, setMsg] = useState(["<b>Welcome to this amazing discussion...</b>", "Please feel free to enjoy ;)"]);
     const [write, setWritten] = useState("");
 
     useEffect(() => {
