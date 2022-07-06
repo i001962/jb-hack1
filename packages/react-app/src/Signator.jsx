@@ -7,13 +7,13 @@ import { AddressInput } from "./components";
 import Gun from "gun";
 import "gun/lib/open";
 import "gun/sea";
-import 'gun/lib/radix2.js'
+import 'gun/lib/radix.js'
 import 'gun/lib/radisk.js'
 import 'gun/lib/store.js'
 import 'gun/lib/rindexed.js'
-//import { getJBDirectory } from "juice-sdk";
-//import { JsonRpcProvider } from "@ethersproject/providers";
 import useJuiceboxBalance from "./hooks/useJuiceboxBalance";
+import { formatEther } from "ethers/lib/utils";
+
 
 var gun = Gun();
 var SEA = Gun.SEA;
@@ -35,9 +35,12 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
 
   // something will get looked up here
   const PROJECT_ID = 1;
-  const { data: balance } = useJuiceboxBalance({ projectId: PROJECT_ID });
+  const { data: balance } = useJuiceboxBalance({ projectId: PROJECT_ID});
   console.log("Balance here", balance);
-  
+  const balanceETH = balance
+  ? parseFloat(formatEther(balance)).toFixed(4)
+  : "...";
+  console.log('balanceETH', balanceETH);
   //jb
   
   const [allMessages, setAllMessages] = useState([]);

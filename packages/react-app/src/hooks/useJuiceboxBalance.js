@@ -16,7 +16,7 @@ export default function useJuiceboxBalance({ projectId }) {
   useEffect(() => {
     async function getBalance(projectId) {
       const provider = new JsonRpcProvider(RPC_HOST);
-
+      //const provider = provider;
       const terminals = await getJBDirectory(provider).terminalsOf(projectId);
       const primaryTerminal = terminals[0];
 
