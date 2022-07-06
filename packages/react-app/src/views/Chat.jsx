@@ -1,8 +1,10 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useCallback, memo } from "react";
 import { Card } from "antd";
 import Gun from "gun";
 
 const gun = Gun();
+
+gun.get("chat").set("")
 
 const get =  key => {
      return new Promise((resolve, reject) => {
@@ -15,18 +17,16 @@ const lastOf = async key => {
 }
 
 // push to array last element on change of other  var.
-
-localStorage.clear()
 export default function Chat() {
     
     const [msg, setMsg] = useState([]);
     const [write, setWritten] = useState("");
 
     useEffect(() => {
-        gun.get("chat").map().on(data => {
+        gun.get("chat").map().once(data => {
             setMsg((prev) => ( [...prev, data] ))
-        })
-    }, [])
+        });
+    }, [setMsg])
     return <div id="chat" className="chat">
         <Card>
             <p>Test</p>
@@ -37,8 +37,11 @@ export default function Chat() {
 
             <input placeholder="Type here..." type="text" value={write} onInput={(e) => setWritten(e.target.value)}/>
             <button onClick={() => { 
+                console.log(write)
                 gun.get("chat").set(write);
             }}>Send</button>
         </Card>
     </div>
 }
+
+export const ChatMemo = memo(Chat);
