@@ -4,8 +4,6 @@ import Gun from "gun";
 
 const gun = Gun();
 
-gun.get("chat").put({ hvrjg: "hsughsbjk" })
-
 const get =  key => {
      return new Promise((resolve, reject) => {
         gun.get(key).on(data => resolve(data));
@@ -18,24 +16,29 @@ const lastOf = async key => {
 
 // push to array last element on change of other  var.
 
+localStorage.clear()
 export default function Chat() {
     
     const [msg, setMsg] = useState([]);
+    const [write, setWritten] = useState("");
 
     useEffect(() => {
         gun.get("chat").map().on(data => {
             setMsg((prev) => ( [...prev, data] ))
         })
     }, [])
-
     return <div id="chat" className="chat">
         <Card>
             <p>Test</p>
 
-            <button onClick={() => { gun.get("chat").set(Math.random() * 0.1) }}>Add random value</button>
             {msg.map(data =>
                 <li>{data}</li>
             )}
+
+            <input placeholder="Type here..." type="text" value={write} onInput={(e) => setWritten(e.target.value)}/>
+            <button onClick={() => { 
+                gun.get("chat").set(write);
+            }}>Send</button>
         </Card>
     </div>
 }
