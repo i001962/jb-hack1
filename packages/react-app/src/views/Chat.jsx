@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, memo } from "react";
 import { Card, Input, Button } from "antd";
+import Account from "../components/Account";
 import Gun from "gun";
 
 const gun = Gun();
@@ -21,12 +22,17 @@ export default function Chat() {
     const [write, setWritten] = useState("");
 
     useEffect(() => {
+        window.localStorage.clear();
         gun.get("chat").map().once(data => {
             setMsg((prev) => ( [...prev, data] ))
         });
     }, [setMsg])
     return <div id="chat" className="chat">
+        <Account></Account>
         <Card>
+
+            <button onclick="window.localStorage.clear();">Clear All</button>
+
             <p>Test</p>
 
             {msg.map(data =>
