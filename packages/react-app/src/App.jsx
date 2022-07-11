@@ -181,7 +181,7 @@ function App() {
             />
           </Route>
           <Route exact path="/chat">
-            <Chat></Chat>
+            <Chat isLogged={address}></Chat>
           </Route>
         </Switch>
       </BrowserRouter>
