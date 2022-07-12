@@ -1,34 +1,32 @@
 import React, { useState, useEffect, memo } from "react";
-import { Card } from "antd";
+import { Card, Input, Button } from "antd";
 
 import crypto from "crypto";
 
-function HashNamespace(user1, user2) {
-    // Return the namespace that'll will be used for Gun. 
-    // It hash the user1 eth key using user2's key as secret.
-    const sha256Hasher = crypto.createHmac("sha256", user2);
-
-    // hash the string
-    const hash = sha256Hasher.update(user1);
-
-    return hash;
-}
-
-export default function List ({who, db }) {
+export default function List ({who, who2, db }) {
 
     const [Conversations, setConversations] = useState([]);
-
-    console.log(HashNamespace(who, "0x8b80755C441d355405CA7571443Bb9247B77Ec16").digest("hex"))
+    const [write, setWritten] = useState("");
+    const [msg, setMsg] = useState([]);
 
     useEffect(() => {
-    }, [])
+        db.get("chat").map().once(data => {
+            setMsg((prev) => ( [...prev, data] ))
+        });
+    }, [setMsg])
 
     return (
         <Card>
             <div className="convList">
-                {Conversations.map(conv =>
-                    <li>{conv}</li>
+                {msg.map(data =>
+                    <li>{data}</li>
                 )}
+
+                <Input placeholder="Type here..." type="text" value={write} onInput={(e) => setWritten(e.target.value)}/>
+                <Button onClick={() => { 
+                    console.log(write)
+                    db.get("chat").set(write);
+                }}>Send</Button>
             </div>
         </Card>
     )

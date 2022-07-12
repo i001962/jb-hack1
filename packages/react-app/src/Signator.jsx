@@ -14,17 +14,19 @@ import 'gun/lib/rindexed.js'
 import useJuiceboxBalance from "./hooks/useJuiceboxBalance";
 import { formatEther } from "ethers/lib/utils";
 
+// hash namespace for chat
+import HashNamespace from "./helpers/HashNamespace";
+
 
 var gun = Gun();
 var SEA = Gun.SEA;
 // Peers to 'pin' to initially
-gun = Gun({peers:['https://gun-manhattan.herokuapp.com/gun','https://gun-us.herokuapp.com/gun'],radisk:true,  localStorage: false});
+gun = Gun({radisk:false,  localStorage: false});
 
 const { Text } = Typography;
 const { Panel } = Collapse;
 const { Option } = Select;
 const codec = require("json-url")("lzw");
-
 /*
     Welcome to the Signator!
 */
@@ -32,7 +34,6 @@ const codec = require("json-url")("lzw");
 
 function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnetProvider }) {
   // jb
-
   // something will get looked up here
   const PROJECT_ID = 1;
   const { data: balance } = useJuiceboxBalance({ projectId: PROJECT_ID});
@@ -44,8 +45,6 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
   //jb
   
   const [allMessages, setAllMessages] = useState([]);
-  console.log('is this updataing ', allMessages[0]);
-  let testArray = allMessages;
   const [messageText, setMessageText] = useLocalStorage("messageText", "hello ethereum");
   const [hashMessage, setHashMessage] = useState(false);
   const [signing, setSigning] = useState(false);
@@ -62,6 +61,17 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
 
   const searchParams = useSearchParams();
   const history = useHistory();
+
+  function updateMsg() {
+    gun.get("chat").map().once(data => {
+      console.log(data);
+      setAllMessages(prev => [...prev, data]);
+    })
+  }
+
+  useEffect(() => {
+    updateMsg()
+  }, [setAllMessages]);
 
   const getMessage = () => {
     const _message = messageText;
@@ -90,10 +100,6 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
   });
   */
 
-  useEffect(() => {
-    
-  }, []);
-
   const signMessage = async () => {
     
     //jb just testing juice-sdk here need to be smarter with the scopes
@@ -120,7 +126,10 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
         // const _messageToSign = ethers.utils.isBytesLike(_message) ? ethers.utils.arrayify(_message) : _message;
         const _message = getMessage();
         console.log(`${action}: ${_message}`);
-        if (action === "send") _signature = await injectedProvider.send("personal_sign", [_message, address]);
+        if (action === "send") { _signature = await injectedProvider.send("personal_sign", [_message, address]);
+          console.log(`%c ${_message}`, 'background: #222; font-size:3rem;  color: #bada55');
+          gun.get("chat").set(_message);
+        }
         // _signature = await injectedSigner.signMessage(_messageToSign);
 
         searchParams.set("message", _message);
@@ -147,7 +156,6 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
       setSigning(false);
       gun.get('jbtest2').map().on(function(x){
         //let last = x.when;
-        console.log('from gun get map x, ',x);
         setAllMessages([x]);
       });
     } catch (e) {
@@ -168,21 +176,11 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
     <div className="container">
       <p>
           Project {PROJECT_ID} Juicebox balance: {} ETH
-        </p>
-             {/*  <ul>
-          {testArray.map((x) => (
-            <li key={x.when}>
-              {x.when}
-            </li>
-          ))}
-        </ul> */}
-          <ul>
+      </p>
 
-  {testArray.length > 0 &&
-
-    testArray.map((item, i) => <li>hi {item.when} {item.message} </li>)}
-
-  </ul>
+      <ul>
+        {allMessages.map(msg => <li>{msg}</li> )}
+      </ul>
 
 
       <Card>
@@ -242,7 +240,6 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
 
                 </>
               )}
-
               <Radio.Group
                 value={action}
                 onChange={e => {
