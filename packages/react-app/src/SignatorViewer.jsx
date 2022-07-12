@@ -1,7 +1,6 @@
 import {
   CheckCircleTwoTone,
   CloseCircleTwoTone,
-  DeleteOutlined,
   QrcodeOutlined,
   TwitterOutlined,
   InfoOutlined,
@@ -380,16 +379,6 @@ function SignatorViewer({ injectedProvider, mainnetProvider, address, loadWeb3Mo
                       )}
                       <div style={{ marginLeft: 10 }}>
                         <Tooltip title={addressChecks[index]}>{_indicator}</Tooltip>
-                      </div>
-                      <div style={{ marginLeft: 10 }}>
-                        <Tooltip title="Delete">
-                          <DeleteOutlined
-                            onClick={() => {
-                              removeSignature(index);
-                            }}
-                            style={{ fontSize: 24 }}
-                          />
-                        </Tooltip>
                       </div>
                     </div>
                     <div style={{ marginTop: 10 }}>
