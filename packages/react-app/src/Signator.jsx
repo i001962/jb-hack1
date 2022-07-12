@@ -70,7 +70,6 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
     return _message;
   };
 
-  */
   const signMessage = async () => {
     
     //jb just testing juice-sdk here need to be smarter with the scopes
