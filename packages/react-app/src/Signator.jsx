@@ -45,7 +45,7 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
   //jb
   
   const [allMessages, setAllMessages] = useState([]);
-  const [messageText, setMessageText] = useLocalStorage("messageText", "hello ethereum");
+  const [messageText, setMessageText] = useLocalStorage("");
   const [hashMessage, setHashMessage] = useState(false);
   const [signing, setSigning] = useState(false);
   const [type, setType] = useLocalStorage("signingType", "message");
@@ -115,6 +115,8 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
     //console.log('this is a terminal ',terminals);
     // jb
 
+    setMessageText("");
+
     try {
       setSigning(true);
 
@@ -180,10 +182,10 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
           {allMessages.map(msg => {
             
             return (
-              <li id={msg.id} key={msg.id}>
+              <li className="msg" id={msg.id} key={msg.id}>
               <p>{msg.time} 
                 <br/> 
-                <a style={{color:"gray", opacity:"90%"}} href={`https://etherscan.io/address/${msg.from}`}><u>{msg.from}</u></a>
+                <a style={{color:"gray", opacity:"90%", fontWeight: "bold"}} href={`https://etherscan.io/address/${msg.from}`}><u>{msg.from}</u></a>
               </p>
               <p>{msg.body}</p>
               </li>
@@ -200,6 +202,7 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
             size="large"
             autoSize={{ minRows: 1 }}
             value={messageText}
+            placeholder="Type your message..."
             onChange={e => {
               setMessageText(e.target.value);
             }}
