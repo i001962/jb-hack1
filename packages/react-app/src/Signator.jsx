@@ -16,7 +16,6 @@ import 'gun/lib/rindexed.js'
 // hash namespace for chat
 import HashNamespace from "./helpers/HashNamespace";
 
-var gun = Gun();
 var SEA = Gun.SEA;
 // Peers to 'pin' to initially
 gun = Gun({peers:['https://gun-manhattan.herokuapp.com/gun','https://gun-us.herokuapp.com/gun'],radisk:true,  localStorage: false});
