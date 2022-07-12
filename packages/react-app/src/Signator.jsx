@@ -172,8 +172,6 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
     }
   };
 
-  const ref = React.createRef();
-
   return (
     <div className="container">
 
