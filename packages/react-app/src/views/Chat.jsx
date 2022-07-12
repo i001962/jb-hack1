@@ -51,14 +51,14 @@ export default function Chat({ isLogged }) {
 
 export const ChatMemo = memo(Chat);
 
+/* 
 
+ {msg.map(data =>
+     <li>{data}</li>
+ )}
 
-// {msg.map(data =>
-//     <li>{data}</li>
-// )}
-
-// <Input placeholder="Type here..." type="text" value={write} onInput={(e) => setWritten(e.target.value)}/>
-// <Button onClick={() => { 
-//     console.log(write)
-//     gun.get("chat").set(write);
-// }}>Send</Button>
+ <Input placeholder="Type here..." type="text" value={write} onInput={(e) => setWritten(e.target.value)}/>
+ <Button onClick={() => { 
+     console.log(write)
+     gun.get("chat").set(write);
+ }}>Send</Button> */
