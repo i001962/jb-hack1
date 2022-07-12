@@ -1,10 +1,9 @@
-import { Button, Card, Input, notification, Space } from "antd";
+import { Alert, Button, Card, Checkbox, Input, notification, Radio, Space, Typography, Collapse, Select } from "antd";
+import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { useLocalStorage } from "./hooks";
-import useJuiceboxBalance from "./hooks/useJuiceboxBalance";
-import { formatEther } from "ethers/lib/utils";
-// Gun config (here?)
+import { AddressInput } from "./components";
 import Gun from "gun";
 import "gun/lib/open";
 import "gun/sea";
@@ -12,14 +11,21 @@ import 'gun/lib/radix.js'
 import 'gun/lib/radisk.js'
 import 'gun/lib/store.js'
 import 'gun/lib/rindexed.js'
+import useJuiceboxBalance from "./hooks/useJuiceboxBalance";
+import { formatEther } from "ethers/lib/utils";
 
 // hash namespace for chat
 import HashNamespace from "./helpers/HashNamespace";
 
+
+var gun = Gun();
 var SEA = Gun.SEA;
 // Peers to 'pin' to initially
-gun = Gun({peers:['https://gun-manhattan.herokuapp.com/gun','https://gun-us.herokuapp.com/gun'],radisk:true,  localStorage: false});
+gun = Gun({radisk:false,  localStorage: false});
 
+const { Text } = Typography;
+const { Panel } = Collapse;
+const { Option } = Select;
 const codec = require("json-url")("lzw");
 /*
     Welcome to the Signator!
@@ -27,8 +33,8 @@ const codec = require("json-url")("lzw");
 
 
 function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnetProvider }) {
-
-  // JB something will get looked up here: projectId, onwnerAccount etc
+  // jb
+  // something will get looked up here
   const PROJECT_ID = 1;
   const { data: balance } = useJuiceboxBalance({ projectId: PROJECT_ID});
   console.log("Balance here", balance);
@@ -40,6 +46,7 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
   
   const [allMessages, setAllMessages] = useState([]);
   const [messageText, setMessageText] = useLocalStorage("messageText", "hello ethereum");
+  const [hashMessage, setHashMessage] = useState(false);
   const [signing, setSigning] = useState(false);
   const [type, setType] = useLocalStorage("signingType", "message");
   const [chainId, setChainId] = useState(1,);
@@ -53,6 +60,7 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
   }
 
   const searchParams = useSearchParams();
+  const history = useHistory();
 
   function updateMsg() {
     gun.get("chat").map().once(data => {
@@ -67,21 +75,55 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
 
   const getMessage = () => {
     const _message = messageText;
+
+    /*
+    if (metaData === "time") {
+      _message = `${messageDate.toLocaleString()}: ${messageText}`;
+    } else if (metaData == "block") {
+      _message = `${latestBlock}: ${messageText}`;
+    } else {
+      _message = messageText;
+    }
+    */
+
+    if (hashMessage) {
+      return ethers.utils.keccak256(ethers.utils.toUtf8Bytes(_message)); // _message//ethers.utils.hashMessage(_message)
+    }
     return _message;
   };
+
+  // If you want to call a function on a new block
+  /*
+  useOnBlock(mainnetProvider, () => {
+    console.log(`⛓ A new mainnet block is here: ${mainnetProvider.blockNumber}`);
+    setLatestBlock(mainnetProvider.blockNumber);
+  });
+  */
 
   const signMessage = async () => {
     
     //jb just testing juice-sdk here need to be smarter with the scopes
     console.log('injectedProvider ', injectedProvider);
+    //const JBDirectory = getJBDirectory(injectedProvider);
+    //just testing
+    //const JBDirectory = getJBDirectory("https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161");
+    //const RPC_HOST = "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161";
+    //const provider1 = new JsonRpcProvider(RPC_HOST);
+    //const JBDirectory =  getJBDirectory(provider1);
+    //const terminals = await JBDirectory.terminalsOf(PROJECT_ID);
+ 
+    //console.log('this is a terminal ',terminals);
     // jb
 
     try {
       setSigning(true);
+
       const injectedSigner = action === "send" && injectedProvider.getSigner();
+
       let _signature;
 
       if (type === "message") {
+        // const _messageToSign = ethers.utils.isBytesLike(_message) ? ethers.utils.arrayify(_message) : _message;
         const _message = getMessage();
         console.log(`${action}: ${_message}`);
         if (action === "send") { _signature = await injectedProvider.send("personal_sign", [_message, address]);
@@ -92,6 +134,7 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
 
         searchParams.set("message", _message);
       }
+      // console.log(_signature)
 
       if (action === "send") console.log(`Success! ${_signature}`);
 
@@ -103,9 +146,10 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
         searchParams.set("addresses", manualAddress);
       }
       console.log('Put this into gun?? ', `/view?${searchParams.toString()}`);
-
+      // Comment out to prevent route change
+      //history.push(`/view?${searchParams.toString()}`);
       const when = `${Date.now()}`;
-      // TODO - make sure to insert jbx project or project id and toAddress for project owner into gun
+      // TODO - insert jbx project or project id here
       const toAddress = '0x' + 'your-JB-Project-address'.toLowerCase();
       console.log(toAddress);
       gun.get("jbtest2").get(when).put({ fromAddress: address, signature: _signature, message: messageText, when: when, evidence: `/view?${searchParams.toString()}`}).once(function(x){console.log(x)});
@@ -137,6 +181,8 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
       <ul>
         {allMessages.map(msg => <li>{msg}</li> )}
       </ul>
+
+
       <Card>
         {type === "message" && (
           <Input.TextArea
@@ -149,6 +195,7 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
             }}
           />
         )}
+
         <Space>
           <Button
             size="large"
