@@ -16,12 +16,12 @@ import { formatEther } from "ethers/lib/utils";
 
 // hash namespace for chat
 import HashNamespace from "./helpers/HashNamespace";
-
+import { v4 as uuidv4 } from 'uuid';
 
 var gun = Gun();
 var SEA = Gun.SEA;
 // Peers to 'pin' to initially
-gun = Gun({radisk:false,  localStorage: false});
+gun = Gun({radisk:false,  localStorage: true});
 
 const { Text } = Typography;
 const { Panel } = Collapse;
@@ -50,7 +50,7 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
   const [signing, setSigning] = useState(false);
   const [type, setType] = useLocalStorage("signingType", "message");
   const [chainId, setChainId] = useState(1,);
-  const [action, setAction] = useState("send");
+  const [action, setAction] = useState("Send");
   const [manualSignature, setManualSignature] = useState();
   const [manualAddress, setManualAddress] = useState();
 
@@ -118,7 +118,7 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
     try {
       setSigning(true);
 
-      const injectedSigner = action === "send" && injectedProvider.getSigner();
+      const injectedSigner = action === "Send" && injectedProvider.getSigner();
 
       let _signature;
 
@@ -126,9 +126,10 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
         // const _messageToSign = ethers.utils.isBytesLike(_message) ? ethers.utils.arrayify(_message) : _message;
         const _message = getMessage();
         console.log(`${action}: ${_message}`);
-        if (action === "send") { _signature = await injectedProvider.send("personal_sign", [_message, address]);
+        if (action === "Send") { _signature = await injectedProvider.send("personal_sign", [_message, address]);
           console.log(`%c ${_message}`, 'background: #222; font-size:3rem;  color: #bada55');
-          gun.get("chat").set(_message);
+
+          gun.get("chat").set({ from: address, body: _message, time:`${new Date()}`, signature: _signature, evidence: `/view?${searchParams.toString()}`, id: uuidv4()  });
         }
         // _signature = await injectedSigner.signMessage(_messageToSign);
 
@@ -136,9 +137,9 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
       }
       // console.log(_signature)
 
-      if (action === "send") console.log(`Success! ${_signature}`);
+      if (action === "Send") console.log(`Success! ${_signature}`);
 
-      if (action === "send") {
+      if (action === "Send") {
         searchParams.set("signatures", _signature);
         searchParams.set("addresses", address);
       } else if (action === "verify") {
@@ -148,16 +149,15 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
       console.log('Put this into gun?? ', `/view?${searchParams.toString()}`);
       // Comment out to prevent route change
       //history.push(`/view?${searchParams.toString()}`);
-      const when = `${Date.now()}`;
       // TODO - insert jbx project or project id here
       const toAddress = '0x' + 'your-JB-Project-address'.toLowerCase();
       console.log(toAddress);
-      gun.get("jbtest2").get(when).put({ fromAddress: address, signature: _signature, message: messageText, when: when, evidence: `/view?${searchParams.toString()}`}).once(function(x){console.log(x)});
-      setSigning(false);
-      gun.get('jbtest2').map().on(function(x){
-        //let last = x.when;
-        setAllMessages([x]);
-      });
+      // gun.get("jbtest2").get(when).put({ fromAddress: address, signature: _signature, message: messageText, when: when, evidence: `/view?${searchParams.toString()}`}).once(function(x){console.log(x)});
+      // setSigning(false);
+      // gun.get('jbtest2').map().on(function(x){
+      //   //let last = x.when;
+      //   setAllMessages([x]);
+      // });
     } catch (e) {
       console.log(e);
       setSigning(false);
@@ -172,15 +172,30 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
     }
   };
 
+  const ref = React.createRef();
+
   return (
     <div className="container">
 
-      <ul>
-        {allMessages.map(msg => <li>{msg}</li> )}
-      </ul>
-
+      <Card stlye={{height:"25vh"}}>
+        <div style={{overflowY:"scroll", height:"400px"}}>
+          {allMessages.map(msg => {
+            
+            return (
+              <li id={msg.id} key={msg.id}>
+              <p>{msg.time} 
+                <br/> 
+                <a style={{color:"gray", opacity:"90%"}} href={`https://etherscan.io/address/${msg.from}`}><u>{msg.from}</u></a>
+              </p>
+              <p>{msg.body}</p>
+              </li>
+            )
+           })}
+        </div>
+      </Card>
 
       <Card>
+
         {type === "message" && (
           <Input.TextArea
             style={{ fontSize: 18 }}
@@ -197,11 +212,11 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
           <Button
             size="large"
             type="primary"
-            onClick={action !== "send" ? signMessage : injectedProvider ? signMessage : loadWeb3Modal}
+            onClick={action !== "Send" ? signMessage : injectedProvider ? signMessage : loadWeb3Modal}
             loading={signing}
-            style={{ marginTop: 10 }}
+            style={{ marginTop: 10, fontWeight: "bold" }}
           >
-            {action !== "send" ? action : injectedProvider ? action : "Connect account to send"}
+            {action !== "Send" ? action : injectedProvider ? action : "Connect account to send"}
           </Button>
 
           {signing && (
@@ -216,55 +231,6 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
             </Button>
           )}
         </Space>
-        <Collapse ghost>
-          <Panel header="Advanced" key="1">
-          <Space direction="vertical" style={{ width: "100%" }}>
-          <p>Hi mom</p>
-          </Space>
-            <Space direction="vertical" style={{ width: "100%" }}>
-              <Radio.Group
-                value={type}
-                buttonStyle="solid"
-                size="large"
-                onChange={e => {
-                  setType(e.target.value);
-                }}
-              >
-              </Radio.Group>
-
-              {type === "message" && (
-                <>
-
-                </>
-              )}
-              <Radio.Group
-                value={action}
-                onChange={e => {
-                  setAction(e.target.value);
-                }}
-                style={{ marginTop: 10 }}
-              >
-                <Radio value="send">Send</Radio>
-                {/* <Radio value="create">Create</Radio> */}
-                <Radio value="verify">Verify</Radio>
-              </Radio.Group>
-              {action === "verify" && (
-                <>
-                  <AddressInput
-                    value={manualAddress}
-                    onChange={v => setManualAddress(v)}
-                    ensProvider={mainnetProvider}
-                  />
-                  <Input
-                    placeholder="signature"
-                    value={manualSignature}
-                    onChange={e => setManualSignature(e.target.value)}
-                  />
-                </>
-              )}
-            </Space>
-          </Panel>
-        </Collapse>
       </Card>
     </div>
   );

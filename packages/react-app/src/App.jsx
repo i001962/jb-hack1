@@ -127,7 +127,7 @@ function App() {
           size="large"
           onClick={logoutOfWeb3Modal}
         >
-          logout
+          Logout
         </Button>,
       );
     } else {
@@ -140,7 +140,7 @@ function App() {
           /* type={minimized ? "default" : "primary"}     too many people just defaulting to MM and having a bad time */
           onClick={loadWeb3Modal}
         >
-          connect
+          Connect
         </Button>,
       );
     }
@@ -149,8 +149,8 @@ function App() {
   return (
     <div className="App">
       {/* ✏️ Edit the header and change the title to your project name */}
-      <Affix offsetTop={0}>
-        <Header
+      <Affix offsetTop={0} style={{ background:"none" }}>
+      <Header style={{ background:"none"}}
           extra={[
             address && <Address address={address} ensProvider={mainnetProvider} blockExplorer={blockExplorer} />,
             ...modalButtons,
@@ -179,9 +179,6 @@ function App() {
               loadWeb3Modal={loadWeb3Modal}
               chainList={chainList}
             />
-          </Route>
-          <Route exact path="/chat">
-            <Chat isLogged={address}></Chat>
           </Route>
         </Switch>
       </BrowserRouter>
