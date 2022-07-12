@@ -174,9 +174,6 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
 
   return (
     <div className="container">
-      <p>
-          Project {PROJECT_ID} Juicebox balance: {} ETH
-      </p>
 
       <ul>
         {allMessages.map(msg => <li>{msg}</li> )}
