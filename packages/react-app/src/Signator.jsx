@@ -59,6 +59,8 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
     gun.get(HashNamespace(await [address, chatWith].sort().join())).map().once(data => {
       // console.log('this is in gundb ',data);
       setAllMessages(prev => [...prev, data]);
+      var anchor = document.querySelector('#the-end');
+      anchor.scrollIntoView();
     })
   }
 
@@ -114,6 +116,8 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
       // TODO - insert jbx project or project id here
       console.log(HashNamespace(await [address, chatWith].sort().join()))
       gun.get(HashNamespace(await [address, chatWith].sort().join())).set({ from: address, body: _messageHolder, time:`${new Date()}`, signature: _signature, evidence: searchParams.toString(), id: uuidv4()  });
+      setSigning(false);
+
     } catch (e) {
         console.log(e);
         setSigning(false);
@@ -153,6 +157,7 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
                 )
                })
           : "You need to connect to send message"}
+          <div id="the-end" className="the-end"></div>
         </div>
       </Card>
 
