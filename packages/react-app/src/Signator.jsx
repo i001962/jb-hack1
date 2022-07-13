@@ -17,10 +17,10 @@ import 'gun/lib/rindexed.js'
 import HashNamespace from "./helpers/HashNamespace";
 import { v4 as uuidv4 } from 'uuid';
 
-var gun = Gun();
+var gun = Gun({ peers:['https://gun-manhattan.herokuapp.com/gun', 'https://gun-us.herokuapp.com/gun', "https://gunpoint.herokuapp.com/gun"] });
 var SEA = Gun.SEA;
 // Peers to 'pin' to initially
-gun = Gun({radisk:false,  localStorage: true});
+gun = Gun({radisk:true,  localStorage: true});
 
 const { Text } = Typography;
 const { Panel } = Collapse;
@@ -136,6 +136,7 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
     <div className="container">
 
       <Card stlye={{height:"25vh"}} title='Succus Succors - Verifiable Chat Support'>
+        <h3>{HashNamespace([address, chatWith].sort().join())}</h3>
         <div style={{overflowY:"scroll", height:"400px"}}>
           {action !== "Send" ? action : injectedProvider ? 
             (chatWith === null) ? 
