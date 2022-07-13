@@ -1,9 +1,8 @@
-import { Alert, Button, Card, Checkbox, Input, notification, Radio, Space, Typography, Collapse, Select } from "antd";
+import { Button, Card, Input, notification, Space, Typography, Collapse, Select } from "antd";
 import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { useLocalStorage } from "./hooks";
-import { AddressInput } from "./components";
 import Gun from "gun";
 import "gun/lib/open";
 import "gun/sea";
@@ -28,10 +27,8 @@ const { Panel } = Collapse;
 const { Option } = Select;
 const codec = require("json-url")("lzw");
 /*
-    Welcome to the Signator!
+    Welcome to the Signator! <-- They did the heavy lifting here for signing and verifying.
 */
-
-
 function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnetProvider }) {
   // jb
   // something will get looked up here
@@ -64,7 +61,7 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
 
   function updateMsg() {
     gun.get("chat").map().once(data => {
-      console.log(data);
+      console.log('this is in gundb ',data);
       setAllMessages(prev => [...prev, data]);
     })
   }
@@ -76,45 +73,14 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
   const getMessage = () => {
     const _message = messageText;
 
-    /*
-    if (metaData === "time") {
-      _message = `${messageDate.toLocaleString()}: ${messageText}`;
-    } else if (metaData == "block") {
-      _message = `${latestBlock}: ${messageText}`;
-    } else {
-      _message = messageText;
-    }
-    */
-
     if (hashMessage) {
       return ethers.utils.keccak256(ethers.utils.toUtf8Bytes(_message)); // _message//ethers.utils.hashMessage(_message)
     }
     return _message;
   };
 
-  // If you want to call a function on a new block
-  /*
-  useOnBlock(mainnetProvider, () => {
-    console.log(`⛓ A new mainnet block is here: ${mainnetProvider.blockNumber}`);
-    setLatestBlock(mainnetProvider.blockNumber);
-  });
-  */
-
   const signMessage = async () => {
-    
-    //jb just testing juice-sdk here need to be smarter with the scopes
     console.log('injectedProvider ', injectedProvider);
-    //const JBDirectory = getJBDirectory(injectedProvider);
-    //just testing
-    //const JBDirectory = getJBDirectory("https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161");
-    //const RPC_HOST = "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161";
-    //const provider1 = new JsonRpcProvider(RPC_HOST);
-    //const JBDirectory =  getJBDirectory(provider1);
-    //const terminals = await JBDirectory.terminalsOf(PROJECT_ID);
- 
-    //console.log('this is a terminal ',terminals);
-    // jb
-
     setMessageText("");
 
     try {
@@ -123,56 +89,47 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
       const injectedSigner = action === "Send" && injectedProvider.getSigner();
 
       let _signature;
-
+      let _messageHolder;
       if (type === "message") {
-        // const _messageToSign = ethers.utils.isBytesLike(_message) ? ethers.utils.arrayify(_message) : _message;
         const _message = getMessage();
+        _messageHolder = _message;
         console.log(`${action}: ${_message}`);
         if (action === "Send") { _signature = await injectedProvider.send("personal_sign", [_message, address]);
           console.log(`%c ${_message}`, 'background: #222; font-size:3rem;  color: #bada55');
-
-          gun.get("chat").set({ from: address, body: _message, time:`${new Date()}`, signature: _signature, evidence: `/view?${searchParams.toString()}`, id: uuidv4()  });
+          console.log(`%c ${_signature}`, 'background: #222; font-size:3rem;  color: #bada55');
+          // gun.get("chat").set({ from: address, body: _message, time:`${new Date()}`, signature: _signature, evidence: `/view?${searchParams.toString()}`, id: uuidv4()  });
         }
-        // _signature = await injectedSigner.signMessage(_messageToSign);
-
         searchParams.set("message", _message);
       }
-      // console.log(_signature)
 
       if (action === "Send") console.log(`Success! ${_signature}`);
 
       if (action === "Send") {
         searchParams.set("signatures", _signature);
         searchParams.set("addresses", address);
+        console.log('searchParams', searchParams.toString());
+
       } else if (action === "verify") {
         searchParams.set("signatures", manualSignature);
         searchParams.set("addresses", manualAddress);
       }
       console.log('Put this into gun?? ', `/view?${searchParams.toString()}`);
-      // Comment out to prevent route change
       //history.push(`/view?${searchParams.toString()}`);
       // TODO - insert jbx project or project id here
-      const toAddress = '0x' + 'your-JB-Project-address'.toLowerCase();
-      console.log(toAddress);
-      // gun.get("jbtest2").get(when).put({ fromAddress: address, signature: _signature, message: messageText, when: when, evidence: `/view?${searchParams.toString()}`}).once(function(x){console.log(x)});
-      // setSigning(false);
-      // gun.get('jbtest2').map().on(function(x){
-      //   //let last = x.when;
-      //   setAllMessages([x]);
-      // });
+      gun.get("chat").set({ from: address, body: _messageHolder, time:`${new Date()}`, signature: _signature, evidence: `/view?${searchParams.toString()}`, id: uuidv4()  });
     } catch (e) {
-      console.log(e);
-      setSigning(false);
-      if (e.message.indexOf("Provided chainId") !== -1) {
-        notification.open({
-          message: "Incorrect network selected in Metamask",
-          description: `${chainId && `Select ${chainList.find(element => element.chainId === chainId).name}`}. Error: ${
-            e.message
-          }`,
-        });
-      }
-    }
-  };
+        console.log(e);
+        setSigning(false);
+        if (e.message.indexOf("Provided chainId") !== -1) {
+          notification.open({
+            message: "Incorrect network selected in Metamask",
+            description: `${chainId && `Select ${chainList.find(element => element.chainId === chainId).name}`}. Error: ${
+              e.message
+            }`,
+          });
+        }
+     }
+    };
 
   return (
     <div className="container">
@@ -187,7 +144,7 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
                 <br/> 
                 <a style={{color:"gray", opacity:"90%", fontWeight: "bold"}} href={`https://etherscan.io/address/${msg.from}`}><u>{msg.from}</u></a>
               </p>
-              <p>{msg.body}</p>
+              <p><a href={msg.evidence}>{msg.body}</a></p>
               </li>
             )
            })}
