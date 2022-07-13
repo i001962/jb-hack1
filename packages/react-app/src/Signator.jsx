@@ -37,7 +37,6 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
   // console.log("Balance here", balance);
   // use projectId to setup gundb namespace
   //jb
-  
   const [allMessages, setAllMessages] = useState([]);
   const [messageText, setMessageText] = useLocalStorage("");
   const [hashMessage, setHashMessage] = useState(false);
@@ -52,12 +51,12 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
     const _params = new URLSearchParams(useLocation().search);
     return _params;
   }
-
   const searchParams = useSearchParams();
   const history = useHistory();
+  const chatWith = searchParams.get("chat")
 
-  function updateMsg() {
-    gun.get("chat").map().once(data => {
+  async function updateMsg() {
+    gun.get(HashNamespace(await [address, chatWith].sort().join())).map().once(data => {
       // console.log('this is in gundb ',data);
       setAllMessages(prev => [...prev, data]);
     })
@@ -65,7 +64,7 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
 
   useEffect(() => {
     updateMsg()
-  }, [setAllMessages]);
+  }, [setAllMessages, address]);
 
   const getMessage = () => {
     const _message = messageText;
@@ -113,8 +112,8 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
       }
       // console.log('Put this into gun?? ', `/view?${searchParams.toString()}`);
       // TODO - insert jbx project or project id here
-      console.log(searchParams.toString())
-      gun.get("chat").set({ from: address, body: _messageHolder, time:`${new Date()}`, signature: _signature, evidence: searchParams.toString(), id: uuidv4()  });
+      console.log(HashNamespace(await [address, chatWith].sort().join()))
+      gun.get(HashNamespace(await [address, chatWith].sort().join())).set({ from: address, body: _messageHolder, time:`${new Date()}`, signature: _signature, evidence: searchParams.toString(), id: uuidv4()  });
     } catch (e) {
         console.log(e);
         setSigning(false);
