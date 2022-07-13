@@ -19,6 +19,9 @@ export default function useJuiceboxBalance({ projectId }) {
       //const provider = provider;
       const terminals = await getJBDirectory(provider).terminalsOf(projectId);
       const primaryTerminal = terminals[0];
+      
+      //const projectHolder = await getJBProjects(provider)
+      //console.log("projectHolder", projectHolder);
 
       const balance = await getJBSingleTokenPaymentTerminalStore(
         provider

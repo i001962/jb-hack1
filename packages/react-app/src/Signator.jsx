@@ -10,8 +10,8 @@ import 'gun/lib/radix.js'
 import 'gun/lib/radisk.js'
 import 'gun/lib/store.js'
 import 'gun/lib/rindexed.js'
-import useJuiceboxBalance from "./hooks/useJuiceboxBalance";
-import { formatEther } from "ethers/lib/utils";
+// import useJuiceboxBalance from "./hooks/useJuiceboxBalance";
+// import { formatEther } from "ethers/lib/utils";
 
 // hash namespace for chat
 import HashNamespace from "./helpers/HashNamespace";
@@ -31,14 +31,11 @@ const codec = require("json-url")("lzw");
 */
 function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnetProvider }) {
   // jb
-  // something will get looked up here
-  const PROJECT_ID = 1;
-  const { data: balance } = useJuiceboxBalance({ projectId: PROJECT_ID});
-  console.log("Balance here", balance);
-  const balanceETH = balance
-  ? parseFloat(formatEther(balance)).toFixed(4)
-  : "...";
-  console.log('balanceETH', balanceETH);
+  // TODO: find the JB projectID that this widget is 'installed' on.
+  // const PROJECT_ID = 1;
+  //const { data: balance } = useJuiceboxBalance({ projectId: PROJECT_ID});
+  // console.log("Balance here", balance);
+  // use projectId to setup gundb namespace
   //jb
   
   const [allMessages, setAllMessages] = useState([]);
@@ -61,7 +58,7 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
 
   function updateMsg() {
     gun.get("chat").map().once(data => {
-      console.log('this is in gundb ',data);
+      // console.log('this is in gundb ',data);
       setAllMessages(prev => [...prev, data]);
     })
   }
@@ -80,7 +77,7 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
   };
 
   const signMessage = async () => {
-    console.log('injectedProvider ', injectedProvider);
+    // console.log('injectedProvider ', injectedProvider);
     setMessageText("");
 
     try {
@@ -93,10 +90,11 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
       if (type === "message") {
         const _message = getMessage();
         _messageHolder = _message;
-        console.log(`${action}: ${_message}`);
-        if (action === "Send") { _signature = await injectedProvider.send("personal_sign", [_message, address]);
-          console.log(`%c ${_message}`, 'background: #222; font-size:3rem;  color: #bada55');
-          console.log(`%c ${_signature}`, 'background: #222; font-size:3rem;  color: #bada55');
+        // console.log(`${action}: ${_message}`);
+        if (action === "Send") { 
+          _signature = await injectedProvider.send("personal_sign", [_message, address]);
+          // console.log(`%c ${_message}`, 'background: #222; font-size:3rem;  color: #bada55');
+          // console.log(`%c ${_signature}`, 'background: #222; font-size:3rem;  color: #bada55');
           // gun.get("chat").set({ from: address, body: _message, time:`${new Date()}`, signature: _signature, evidence: `/view?${searchParams.toString()}`, id: uuidv4()  });
         }
         searchParams.set("message", _message);
@@ -107,14 +105,13 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
       if (action === "Send") {
         searchParams.set("signatures", _signature);
         searchParams.set("addresses", address);
-        console.log('searchParams', searchParams.toString());
+        // console.log('searchParams', searchParams.toString());
 
       } else if (action === "verify") {
         searchParams.set("signatures", manualSignature);
         searchParams.set("addresses", manualAddress);
       }
-      console.log('Put this into gun?? ', `/view?${searchParams.toString()}`);
-      //history.push(`/view?${searchParams.toString()}`);
+      // console.log('Put this into gun?? ', `/view?${searchParams.toString()}`);
       // TODO - insert jbx project or project id here
       gun.get("chat").set({ from: address, body: _messageHolder, time:`${new Date()}`, signature: _signature, evidence: `/view?${searchParams.toString()}`, id: uuidv4()  });
     } catch (e) {
@@ -134,17 +131,18 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
   return (
     <div className="container">
 
-      <Card stlye={{height:"25vh"}}>
+      <Card stlye={{height:"25vh"}} title='Succus Succors - Verifiable Chat Support'>
         <div style={{overflowY:"scroll", height:"400px"}}>
           {allMessages.map(msg => {
             
             return (
               <li className="msg" id={msg.id} key={msg.id}>
-              <p>{msg.time} 
-                <br/> 
+                <p><a href={msg.evidence}>{msg.body}</a></p>
+                <p>
                 <a style={{color:"gray", opacity:"90%", fontWeight: "bold"}} href={`https://etherscan.io/address/${msg.from}`}><u>{msg.from}</u></a>
-              </p>
-              <p><a href={msg.evidence}>{msg.body}</a></p>
+                <br/>   
+                  {msg.time} 
+                </p>
               </li>
             )
            })}
