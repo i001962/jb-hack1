@@ -127,7 +127,7 @@ function App() {
           size="large"
           onClick={logoutOfWeb3Modal}
         >
-          logout
+          Logout
         </Button>,
       );
     } else {
@@ -140,7 +140,7 @@ function App() {
           /* type={minimized ? "default" : "primary"}     too many people just defaulting to MM and having a bad time */
           onClick={loadWeb3Modal}
         >
-          connect
+          Connect
         </Button>,
       );
     }
@@ -149,17 +149,17 @@ function App() {
   return (
     <div className="App">
       {/* ✏️ Edit the header and change the title to your project name */}
-      <Affix offsetTop={0}>
-        <Header
+      <Affix offsetTop={0} style={{ background:"none" }}>
+      <Header style={{ background:"none"}}
           extra={[
             address && <Address address={address} ensProvider={mainnetProvider} blockExplorer={blockExplorer} />,
             ...modalButtons,
           ]}
         />
       </Affix>
-      <div className="logo-wrapper">
+      {/* <div className="logo-wrapper">
         <img className="logo" src={signatorLogo} alt="Signatorio" />
-      </div>
+      </div> */}
       <BrowserRouter>
         <Switch>
           <Route exact path="/">
@@ -180,22 +180,20 @@ function App() {
               chainList={chainList}
             />
           </Route>
-          <Route exact path="/chat">
-            <Chat isLogged={address}></Chat>
-          </Route>
         </Switch>
       </BrowserRouter>
 
       {/* <ThemeSwitch /> */}
       <Footer style={{ textAlign: "center", fontSize: "16px" }}>
         <Space>
-          <a href="https://github.com/austintgriffith/scaffold-eth/tree/signatorio" target="_blank">
+          <a href="https://github.com/i001962/jb-hack1" target="_blank">
             <GithubOutlined />
           </a>
           <span>Built with 💙</span>
-          <a href="https://buidlguidl.com/" target="_blank">
-            🏰 BuidlGuidl{" "}
-          </a>
+          <a href="https://github.com/noctisatrae" target="_blank">
+            noctisatrae
+          </a> &
+          <a href="https://github.com/i001962">kmacb.eth</a>
         </Space>
       </Footer>
     </div>
