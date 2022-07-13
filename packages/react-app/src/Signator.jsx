@@ -17,7 +17,7 @@ import 'gun/lib/rindexed.js'
 import HashNamespace from "./helpers/HashNamespace";
 import { v4 as uuidv4 } from 'uuid';
 
-var gun = Gun();
+var gun = Gun({ peers:['https://gun-manhattan.herokuapp.com/gun','https://gun-us.herokuapp.com/gun']] });
 var SEA = Gun.SEA;
 // Peers to 'pin' to initially
 gun = Gun({radisk:false,  localStorage: true});
