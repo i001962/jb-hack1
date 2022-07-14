@@ -196,7 +196,7 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
                   <li className="msg" id={msg.id} key={msg.id}>
                     <p style={{ fontSize:"22px" }}><a href={`/view?${msg.evidence}`}>{msg.body}</a></p>
                     <p>
-                    <a style={{color:"gray", opacity:"90%", fontWeight: "bold"}} href={`https://etherscan.io/address/${msg.from}`}><u>{(msg.from === address) ? "Me" : <Address address={msg.from}></Address>}</u></a>
+                    <a style={{color:"gray", opacity:"90%", fontWeight: "bold"}} href={`https://etherscan.io/address/${msg.from}`}><u>{(msg.from === address) ? "Me" : <Address address={msg.from} ensProvider={mainnetProvider}></Address>}</u></a>
                     <br/>   
                       <ReactTimeAgo date={msg.time}></ReactTimeAgo>
                     </p>
