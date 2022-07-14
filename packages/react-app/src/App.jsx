@@ -200,7 +200,7 @@ function App() {
           </a>
           <span>Built with Scaffold-ETH (Signator.io), GunDB  & Juice-SDK.</span>
           <a href="https://github.com/noctisatrae" target="_blank">
-            noctisatrae
+            noctisatrae.eth
           </a> &
           <a href="https://github.com/i001962">kmacb.eth</a>
       
