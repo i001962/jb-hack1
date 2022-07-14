@@ -185,9 +185,10 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
             />
               <p>One time setup: <a href={`/?chat=${chatSupport}`}><code>?chat={chatSupport}</code></a><br />
               to talk to this JB Project's Support contact</p>
-              <Input onChange={e => setPROJECT_ID(e.target.value)}></Input>
+              <Input placeholder="Type Juicebox project ID here..." onChange={e => setPROJECT_ID(e.target.value)}></Input>
             <p>Or you may manually specify who you want to talk to <code>?chat={`<ETH ADRESS HERE>`}</code></p>
             <p>You can check for new messages at <a href="/inbox">/inbox</a></p>
+            <p>If you need help, <a href="https://github.com/i001962/jb-hack1/blob/main/README.md">read this explanatory guide</a>.</p>
             </>
               : 
               allMessages.map(msg => {
