@@ -136,12 +136,8 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
       // TODO - insert jbx project or project id here
       console.log(HashNamespace(await [address, chatWith].sort().join()))
       gun.get(HashNamespace(await [address, chatWith].sort().join())).set({ from: address, body: _messageHolder, time:`${new Date()}`, signature: _signature, evidence: searchParams.toString(), id: uuidv4()  });
-      
-      gun.get(chatWith).set(address)
 
-      gun.get(chatWith).once(data => {
-        console.log(data);
-      })
+      gun.get(chatWith).set(address)
 
       setSigning(false);
 
