@@ -9,6 +9,7 @@ import 'gun/lib/store.js'
 import 'gun/lib/rindexed.js'
 import { data } from "autoprefixer";
 
+import { Address } from "./components";
 import { Card } from "antd";
 
 const options = { peers:['https://gun-manhattan.herokuapp.com/gun', 'https://gun-us.herokuapp.com/gun', "https://gunpoint.herokuapp.com/gun"],localStorage:false, radisk:true}
@@ -53,7 +54,7 @@ export default function Conversations({ injectedProvider, address, loadWeb3Modal
                 {Conversations.map(data => 
                     <li id={data.id} key={data.id}><a onClick={() => {
                         deleteNotif(data.id)
-                    }} href={`/?chat=${data.from}`}>You received message(s) from {data.from} -- ID : {data.id} !</a></li>
+                        }} href={`/?chat=${data.from}`}>You received message(s) from <Address address={data.from} ensProvider={mainnetProvider}></Address></a></li>
                 )}
             </Card>
         </div>
