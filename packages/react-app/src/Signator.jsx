@@ -1,4 +1,4 @@
-import { Button, Card, Input, notification, Space, Typography, Collapse, Select } from "antd";
+import { Button, Card, Input, notification, Space, Typography, Collapse, Select, Image } from "antd";
 import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
@@ -10,13 +10,13 @@ import 'gun/lib/radix.js'
 import 'gun/lib/radisk.js'
 import 'gun/lib/store.js'
 import 'gun/lib/rindexed.js'
-// import useJuiceboxBalance from "./hooks/useJuiceboxBalance";
-// import { formatEther } from "ethers/lib/utils";
-
-// hash namespace for chat
+import useJuiceboxGetMetadata from "./hooks/useJuiceboxGetMetadata";
+// import useJuiceboxGetAllProjects from "./hooks/useJuiceboxGetAllProjects";
+import SupportSetup from "./components/SupportSetup";
 import HashNamespace from "./helpers/HashNamespace";
 import { v4 as uuidv4 } from 'uuid';
 
+// TODO: set gun relay/pinning peers from project metata. hook needs function component
 var gun = Gun({ peers:['https://gun-manhattan.herokuapp.com/gun', 'https://gun-us.herokuapp.com/gun', "https://gunpoint.herokuapp.com/gun"],localStorage:false, radisk:true});
 var SEA = Gun.SEA;
 // Peers to 'pin' to initially
@@ -31,11 +31,26 @@ const codec = require("json-url")("lzw");
 */
 function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnetProvider }) {
   // jb
-  // TODO: find the JB projectID that this widget is 'installed' on.
-  // const PROJECT_ID = 1;
-  //const { data: balance } = useJuiceboxBalance({ projectId: PROJECT_ID});
-  // console.log("Balance here", balance);
-  // use projectId to setup gundb namespace
+  const PROJECT_ID = 95; // TODO: Ask the user for the projectID in UI for now.
+  // TODO: Move up and use with gun construcutor
+  let gundbPeers;
+  let chatSupport;
+  let logoUri;
+  const { data: projectMetadata } = useJuiceboxGetMetadata({ projectId: PROJECT_ID});
+  if (!projectMetadata) {
+    console.log('no project metadata');
+  } else {
+    gundbPeers = projectMetadata.gundbPeers;
+    chatSupport = projectMetadata.chatSupport;
+    logoUri = projectMetadata.logoUri;
+    const projectName = projectMetadata.name;
+    const description = projectMetadata.description;
+    console.log('project metadata: ', projectMetadata.name);
+    console.log('project metadata: ', projectMetadata.description); 
+  }
+  console.log('gundbPeers: ', gundbPeers);
+  console.log('chatSupport: ', chatSupport);
+  console.log('logoUri: ', logoUri);
   //jb
   const [allMessages, setAllMessages] = useState([]);
   const [messageText, setMessageText] = useLocalStorage("");
@@ -83,9 +98,7 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
 
     try {
       setSigning(true);
-
       const injectedSigner = action === "Send" && injectedProvider.getSigner();
-
       let _signature;
       let _messageHolder;
       if (type === "message") {
@@ -135,25 +148,33 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
   return (
     <div className="container">
 
-      <Card stlye={{height:"25vh"}} title='Succus Succors - Verifiable Chat Support'>
+      <Card stlye={{height:"25vh"}} title='Verifiable Chat Support for JB Projects'>
         <h3>{HashNamespace([address, chatWith].sort().join())}</h3>
         <div style={{overflowY:"scroll", height:"400px"}}>
           {action !== "Send" ? action : injectedProvider ? 
             (chatWith === null) ? 
               
-              <p>You need to specify who you want to talk to in <pre><code>?chat={`<ETH ADRESS HERE>`}</code></pre></p> 
-              
+              <>
+              <Image
+              width={200}
+              src={logoUri}
+            />
+              <p>One time setup: <pre><code>?chat={chatSupport}</code></pre> 
+              <SupportSetup chatSupport={chatSupport}/>
+              to talk to this JB Project's Support contact</p>
+            <p>Or you may manually specify who you want to talk to <pre><code>?chat={`<ETH ADRESS HERE>`}</code></pre></p>
+            </>
               : 
               allMessages.map(msg => {
             
                 return (
                   <li className="msg" id={msg.id} key={msg.id}>
-                    <p>
+                    <p><a href={`/view?${msg.evidence}`}>{msg.body}</a></p>
+                    <p>From:  
                     <a style={{color:"gray", opacity:"90%", fontWeight: "bold"}} href={`https://etherscan.io/address/${msg.from}`}><u>{msg.from}</u></a>
                     <br/>   
                       {msg.time} 
                     </p>
-                    <p><a href={`/view?${msg.evidence}`}>{msg.body}</a></p>
                   </li>
                 )
                })

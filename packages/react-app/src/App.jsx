@@ -189,11 +189,12 @@ function App() {
           <a href="https://github.com/i001962/jb-hack1" target="_blank">
             <GithubOutlined />
           </a>
-          <span>Built with 💙</span>
+          <span>Built with Scaffold-ETH (Signator.io), GunDB  & Juice-SDK.</span>
           <a href="https://github.com/noctisatrae" target="_blank">
             noctisatrae
           </a> &
           <a href="https://github.com/i001962">kmacb.eth</a>
+      
         </Space>
       </Footer>
     </div>

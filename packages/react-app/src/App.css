@@ -12,6 +12,7 @@
 .msg {
   padding-top: 2rem;
   border-bottom: dashed #023131 ;
+  font-size: larger;
 }
 
 .container {
