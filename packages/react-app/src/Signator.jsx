@@ -3,6 +3,13 @@ import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { useLocalStorage } from "./hooks";
+
+import { Address } from "./components";
+
+import TimeAgo from 'javascript-time-ago'
+import ReactTimeAgo from 'react-time-ago'
+import en from 'javascript-time-ago/locale/en.json'
+
 import Gun from "gun";
 import "gun/lib/open";
 import "gun/sea";
@@ -10,6 +17,9 @@ import 'gun/lib/radix.js'
 import 'gun/lib/radisk.js'
 import 'gun/lib/store.js'
 import 'gun/lib/rindexed.js'
+
+import { useResolveEnsName } from "eth-hooks";
+
 import useJuiceboxGetMetadata from "./hooks/useJuiceboxGetMetadata";
 import HashNamespace from "./helpers/HashNamespace";
 import { v4 as uuidv4 } from 'uuid';
@@ -27,6 +37,9 @@ const codec = require("json-url")("lzw");
 /*
     Welcome to the Signator! <-- They did the heavy lifting here for signing and verifying.
 */
+
+TimeAgo.addDefaultLocale(en)
+
 function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnetProvider }) {
   // jb
   // console.log('gundbPeers: ', gundbPeers);
@@ -180,11 +193,11 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
             
                 return (
                   <li className="msg" id={msg.id} key={msg.id}>
-                    <p><a href={`/view?${msg.evidence}`}>{msg.body}</a></p>
-                    <p>From:  
-                    <a style={{color:"gray", opacity:"90%", fontWeight: "bold"}} href={`https://etherscan.io/address/${msg.from}`}><u>{msg.from}</u></a>
+                    <p style={{ fontSize:"20px" }}><a href={`/view?${msg.evidence}`}>{msg.body}</a></p>
+                    <p>
+                    <a style={{color:"gray", opacity:"90%", fontWeight: "bold"}} href={`https://etherscan.io/address/${msg.from}`}><u>{(msg.from === address) ? "Me" : <Address address={msg.from}></Address>}</u></a>
                     <br/>   
-                      {msg.time} 
+                      <ReactTimeAgo date={msg.time}></ReactTimeAgo>
                     </p>
                   </li>
                 )
