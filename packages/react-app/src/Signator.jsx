@@ -31,26 +31,9 @@ const codec = require("json-url")("lzw");
 */
 function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnetProvider }) {
   // jb
-  const PROJECT_ID = 95; // TODO: Ask the user for the projectID in UI for now.
-  // TODO: Move up and use with gun construcutor
-  let gundbPeers;
-  let chatSupport;
-  let logoUri;
-  const { data: projectMetadata } = useJuiceboxGetMetadata({ projectId: PROJECT_ID});
-  if (!projectMetadata) {
-    console.log('no project metadata');
-  } else {
-    gundbPeers = projectMetadata.gundbPeers;
-    chatSupport = projectMetadata.chatSupport;
-    logoUri = projectMetadata.logoUri;
-    const projectName = projectMetadata.name;
-    const description = projectMetadata.description;
-    console.log('project metadata: ', projectMetadata.name);
-    console.log('project metadata: ', projectMetadata.description); 
-  }
-  console.log('gundbPeers: ', gundbPeers);
-  console.log('chatSupport: ', chatSupport);
-  console.log('logoUri: ', logoUri);
+  // console.log('gundbPeers: ', gundbPeers);
+  // console.log('chatSupport: ', chatSupport);
+  // console.log('logoUri: ', logoUri);
   //jb
   const [allMessages, setAllMessages] = useState([]);
   const [messageText, setMessageText] = useLocalStorage("");
@@ -61,6 +44,30 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
   const [action, setAction] = useState("Send");
   const [manualSignature, setManualSignature] = useState();
   const [manualAddress, setManualAddress] = useState();
+
+  const [PROJECT_ID, setPROJECT_ID] = useState(95); // TODO: Ask the user for the projectID in UI for now.
+  
+  const [gundbPeers, setGunDBPeers] = useState([])
+
+  const  [chatSupport, setChatSupport] = useState("");
+  const [logoUri, setLogoUri] = useState("");
+  const { data: projectMetadata } = useJuiceboxGetMetadata({ projectId: PROJECT_ID});
+
+  useEffect(() => {
+    // TODO: Move up and use with gun construcutor
+  
+    if (!projectMetadata) {
+      console.log('no project metadata');
+    } else {
+      setGunDBPeers(projectMetadata.gundbPeers);
+      setChatSupport(projectMetadata.chatSupport);
+      setLogoUri(projectMetadata.logoUri);
+      const projectName = projectMetadata.name;
+      const description = projectMetadata.description;
+      console.log('project metadata: ', projectMetadata.name);
+      console.log('project metadata: ', projectMetadata.description); 
+    }
+  }, [])
 
   function useSearchParams() {
     const _params = new URLSearchParams(useLocation().search);
@@ -129,6 +136,9 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
       // TODO - insert jbx project or project id here
       console.log(HashNamespace(await [address, chatWith].sort().join()))
       gun.get(HashNamespace(await [address, chatWith].sort().join())).set({ from: address, body: _messageHolder, time:`${new Date()}`, signature: _signature, evidence: searchParams.toString(), id: uuidv4()  });
+
+      gun.get(chatWith).set(address)
+
       setSigning(false);
 
     } catch (e) {
