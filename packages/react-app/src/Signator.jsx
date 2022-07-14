@@ -11,8 +11,6 @@ import 'gun/lib/radisk.js'
 import 'gun/lib/store.js'
 import 'gun/lib/rindexed.js'
 import useJuiceboxGetMetadata from "./hooks/useJuiceboxGetMetadata";
-// import useJuiceboxGetAllProjects from "./hooks/useJuiceboxGetAllProjects";
-import SupportSetup from "./components/SupportSetup";
 import HashNamespace from "./helpers/HashNamespace";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -46,16 +44,14 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
   const [manualAddress, setManualAddress] = useState();
 
   const [PROJECT_ID, setPROJECT_ID] = useState(95); // TODO: Ask the user for the projectID in UI for now.
-  
+
   const [gundbPeers, setGunDBPeers] = useState([])
 
   const  [chatSupport, setChatSupport] = useState("");
   const [logoUri, setLogoUri] = useState("");
   const { data: projectMetadata } = useJuiceboxGetMetadata({ projectId: PROJECT_ID});
 
-  useEffect(() => {
-    // TODO: Move up and use with gun construcutor
-  
+  const updateID = (id) => {
     if (!projectMetadata) {
       console.log('no project metadata');
     } else {
@@ -67,7 +63,12 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
       console.log('project metadata: ', projectMetadata.name);
       console.log('project metadata: ', projectMetadata.description); 
     }
-  }, [])
+  }
+
+  useEffect(() => {
+    updateID()
+    // TODO: Move up and use with gun construcutor  
+  })
 
   function useSearchParams() {
     const _params = new URLSearchParams(useLocation().search);
@@ -159,7 +160,6 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
     <div className="container">
 
       <Card stlye={{height:"25vh"}} title='Verifiable Chat Support for JB Projects'>
-        <h3>{HashNamespace([address, chatWith].sort().join())}</h3>
         <div style={{overflowY:"scroll", height:"400px"}}>
           {action !== "Send" ? action : injectedProvider ? 
             (chatWith === null) ? 
@@ -168,11 +168,12 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
               <Image
               width={200}
               src={logoUri}
+              loading={"lazy"}
             />
-              <p>One time setup: <pre><code>?chat={chatSupport}</code></pre> 
-              <SupportSetup chatSupport={chatSupport}/>
+              <p>One time setup: <a href={`/?chat=${chatSupport}`}><code>?chat={chatSupport}</code></a><br />
               to talk to this JB Project's Support contact</p>
-            <p>Or you may manually specify who you want to talk to <pre><code>?chat={`<ETH ADRESS HERE>`}</code></pre></p>
+              <Input onChange={e => setPROJECT_ID(e.target.value)}></Input>
+            <p>Or you may manually specify who you want to talk to <code>?chat={`<ETH ADRESS HERE>`}</code></p>
             </>
               : 
               allMessages.map(msg => {
