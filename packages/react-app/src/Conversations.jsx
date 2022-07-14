@@ -13,7 +13,7 @@ import { Card } from "antd";
 
 const options = { peers:['https://gun-manhattan.herokuapp.com/gun', 'https://gun-us.herokuapp.com/gun', "https://gunpoint.herokuapp.com/gun"],localStorage:false, radisk:true}
 
-var gun = Gun();
+var gun = Gun(options);
 var SEA = Gun.SEA;
 
 export default function Conversations({ injectedProvider, address, loadWeb3Modal, chainList, mainnetProvider }) {
