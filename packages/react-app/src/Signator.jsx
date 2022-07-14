@@ -173,7 +173,7 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
     <div className="container">
 
       <Card stlye={{height:"25vh"}} title='Verifiable Chat Support for JB Projects'>
-        <div style={{overflowY:"scroll", height:"400px"}}>
+        <div style={{overflowY:"scroll", overflowX:"hidden", height:"400px"}}>
           {action !== "Send" ? action : injectedProvider ? 
             (chatWith === null) ? 
               
@@ -193,7 +193,7 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
             
                 return (
                   <li className="msg" id={msg.id} key={msg.id}>
-                    <p style={{ fontSize:"20px" }}><a href={`/view?${msg.evidence}`}>{msg.body}</a></p>
+                    <p style={{ fontSize:"22px" }}><a href={`/view?${msg.evidence}`}>{msg.body}</a></p>
                     <p>
                     <a style={{color:"gray", opacity:"90%", fontWeight: "bold"}} href={`https://etherscan.io/address/${msg.from}`}><u>{(msg.from === address) ? "Me" : <Address address={msg.from}></Address>}</u></a>
                     <br/>   
