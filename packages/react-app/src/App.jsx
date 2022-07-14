@@ -15,6 +15,7 @@ import Signator from "./Signator";
 import SignatorViewer from "./SignatorViewer";
 
 import {Chat} from "./views/index";
+import Conversations from "./Conversations";
 
 const { Footer } = Layout;
 /*
@@ -178,6 +179,15 @@ function App() {
               address={address}
               loadWeb3Modal={loadWeb3Modal}
               chainList={chainList}
+            />
+          </Route>
+          <Route path="/conv">
+            <Conversations
+                mainnetProvider={mainnetProvider}
+                injectedProvider={injectedProvider}
+                address={address}
+                loadWeb3Modal={loadWeb3Modal}
+                chainList={chainList}
             />
           </Route>
         </Switch>
