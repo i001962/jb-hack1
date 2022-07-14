@@ -180,7 +180,7 @@ function App() {
               chainList={chainList}
             />
           </Route>
-          <Route path="/conv">
+          <Route path="/inbox">
             <Conversations
                 mainnetProvider={mainnetProvider}
                 injectedProvider={injectedProvider}
