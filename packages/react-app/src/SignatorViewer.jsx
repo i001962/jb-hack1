@@ -390,17 +390,6 @@ function SignatorViewer({ injectedProvider, mainnetProvider, address, loadWeb3Mo
             }}
           />
 
-          {(!injectedProvider || (address && addresses.indexOf(address) === -1)) && (
-            <Button
-              type="primary"
-              size="large"
-              onClick={injectedProvider ? signMessage : loadWeb3Modal}
-              loading={signing}
-              style={{ marginTop: 10 }}
-            >
-              {injectedProvider ? "Sign" : "Connect account to sign"}
-            </Button>
-          )}
         </Card>
         <div style={{ textAlign: "center" }}>
           <Button
