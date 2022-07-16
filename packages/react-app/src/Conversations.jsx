@@ -40,7 +40,13 @@ export default function Conversations({ injectedProvider, address, loadWeb3Modal
     };
 
     const deleteNotif = (id) => {
-        gun.get(address).get(id).put(null);
+
+        const payload = `{
+            "${id}": null
+        }`
+
+        console.log(JSON.parse(payload))
+        gun.get(address).put(JSON.parse(payload));
         handleRemoveItem(id);
     }
 
@@ -54,8 +60,9 @@ export default function Conversations({ injectedProvider, address, loadWeb3Modal
                 {Conversations.map(data => 
                     <li id={data.id} key={data.id}><a onClick={() => {
                         deleteNotif(data.id)
-                        }} href={`/?chat=${data.from}`}>You received message(s) from <Address address={data.from} ensProvider={mainnetProvider}></Address></a></li>
+                        }} href={`/?chat=${data.from}`} >You received message(s) from <Address address={data.from} ensProvider={mainnetProvider}></Address></a></li>
                 )}
+                {/*  */}
             </Card>
         </div>
     )
