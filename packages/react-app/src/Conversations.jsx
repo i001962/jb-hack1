@@ -40,7 +40,12 @@ export default function Conversations({ injectedProvider, address, loadWeb3Modal
     };
 
     const deleteNotif = (id) => {
-        gun.get(address).get(id).put(null);
+
+        const payload = `{
+            ${id}: null
+        }`
+
+        gun.get(address).put(JSON.parse(id));
         handleRemoveItem(id);
     }
 
