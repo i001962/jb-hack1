@@ -220,13 +220,12 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
               size="large"
               autoSize={{ minRows: 1 }}
               value={messageText}
-              placeholder="Type your message..."
+              placeholder={`Type a message to ${chatWith}...`}
               onChange={e => {
                 setMessageText(e.target.value);
               }}
             />  
           )}
-          <p>You are sending to {chatWith} of JB Project {PROJECT_ID} </p> {/* TODO - ENS lookup here */}
           <Space>
             <Button
               size="large"
