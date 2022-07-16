@@ -172,7 +172,7 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
   return (
     <div className="container">
 
-      <Card stlye={{height:"25vh"}} title='Verifiable Chat Support for JB Projects'>
+      <Card stlye={{height:"25vh"}} title='Verifiable Chat Support for JB Projects' extra={<a href="/inbox">Inbox</a>} >
         <div style={{overflowY:"scroll", overflowX:"hidden", height:"400px"}}>
           {action !== "Send" ? action : injectedProvider ? 
             (chatWith === null) ? 
@@ -224,9 +224,9 @@ function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnet
               onChange={e => {
                 setMessageText(e.target.value);
               }}
-            />
+            />  
           )}
-
+          <p>You are sending to {chatWith} of JB Project {PROJECT_ID} </p> {/* TODO - ENS lookup here */}
           <Space>
             <Button
               size="large"

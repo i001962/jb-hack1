@@ -50,7 +50,7 @@ export default function Conversations({ injectedProvider, address, loadWeb3Modal
 
     return (
         <div className="container">
-            <Card title="inbox">
+            <Card title="inbox" extra={<a href="/">Home</a>} >
                 {Conversations.map(data => 
                     <li id={data.id} key={data.id}><a onClick={() => {
                         deleteNotif(data.id)

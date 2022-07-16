@@ -397,10 +397,10 @@ function SignatorViewer({ injectedProvider, mainnetProvider, address, loadWeb3Mo
             type="primary"
             size="large"
             onClick={() => {
-              history.push(`/`);
+              history.push(`/?chat=${new URLSearchParams(window.location.search).get("chat")}`);
             }}
           >
-            ✍️ &nbsp; Send a new message
+            ✍️ &nbsp; Send another message
           </Button>
         </div>
       </div>
