@@ -44,8 +44,6 @@ export default function Conversations({ injectedProvider, address, loadWeb3Modal
         const payload = `{
             "${id}": null
         }`
-
-        console.log(JSON.parse(payload))
         gun.get(address).put(JSON.parse(payload));
         handleRemoveItem(id);
     }
