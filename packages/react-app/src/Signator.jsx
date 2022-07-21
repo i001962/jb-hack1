@@ -17,8 +17,10 @@ import Presentation from "./components/Presentation";
 import MessageInput from "./components/MessageInput";
 
 // TODO: set gun relay/pinning peers from project metata. hook needs function component
-const gun = Gun({ peers:['https://gun-manhattan.herokuapp.com/gun', 'https://gun-us.herokuapp.com/gun', "https://gunpoint.herokuapp.com/gun"],localStorage:false, radisk:true});
-var SEA = Gun.SEA;
+const gun = Gun({ peers:['https://gun-manhattan.herokuapp.com/gun', 'https://gun-us.herokuapp.com/gun', "https://gunpoint.herokuapp.com/gun"],localStorage:false, radisk:true})
+  .get("succus-soccor").get("production");
+
+  var SEA = Gun.SEA;
 
 // Components
 function Signator({ injectedProvider, address, loadWeb3Modal, chainList, mainnetProvider }) {
